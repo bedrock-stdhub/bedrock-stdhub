@@ -15,8 +15,8 @@ if (!fs.existsSync(pluginsRoot)) {
 const app = express();
 app.use(express.json());
 
-import fileApiRouter from '@/file';
-import configRouter from '@/config';
+import fileApiRouter from '@/api/file';
+import configRouter from '@/api/config';
 
 app.use('/file', fileApiRouter);
 app.use('/config', configRouter);
