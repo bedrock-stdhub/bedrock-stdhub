@@ -1,8 +1,8 @@
 {
-  "name": "mc-bedrock-stdhub",
+  "name": "bedrock-stdhub",
   "type": "module",
   "version": "0.1.0",
-  "description": "A container providing extra possibilities for BDS.",
+  "description": "A completely external 'hub' to load plugins with Bedrock Dedicated Server.",
   "author": "Wesley F. Young",
   "license": "GPL-3.0",
   "private": true,
