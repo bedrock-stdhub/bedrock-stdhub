@@ -20,7 +20,7 @@ module.exports = {
     }
   },
   output: {
-    filename: 'mc-bedrock-stdhub.js',
+    filename: 'bedrock-stdhub.js',
     path: path.resolve(__dirname, 'dist'),
   },
 };

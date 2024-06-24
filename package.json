@@ -29,7 +29,7 @@
     "webpack": "^5.92.1",
     "webpack-cli": "^5.1.4"
   },
-  "bin": "dist/mc-bedrock-stdhub.js",
+  "bin": "dist/bedrock-stdhub.js",
   "pkg": {
     "targets": [
       "node18-win-x64",
