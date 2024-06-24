@@ -7,6 +7,7 @@ import process from 'node:process';
 import os from 'node:os';
 import fileApiRouter from '@/api/file';
 import configRouter from '@/api/config';
+import dataRouter from '@/api/data';
 import PropertiesReader from 'properties-reader';
 import JSZip from 'jszip';
 import commandLineArgs from 'command-line-args';
@@ -138,6 +139,7 @@ const app = express();
 app.use(express.json());
 app.use('/file', fileApiRouter);
 app.use('/config', configRouter);
+app.use('/data', dataRouter);
 
 const stdhubServerPort = 29202;
 app.listen(stdhubServerPort, () => {
