@@ -36,6 +36,15 @@ if (!fs.existsSync(pluginsRoot)) {
   fs.mkdirSync(pluginsRoot);
 }
 
+const permissionsJsonPath = path.join('config', 'default', 'permissions.json');
+const permissionsJson = JSON.parse(
+  fs.readFileSync(permissionsJsonPath).toString()
+) as { allowed_modules: string[] };
+if (!permissionsJson.allowed_modules.includes('@minecraft/server-net')) {
+  permissionsJson.allowed_modules.push('@minecraft/server-net');
+  fs.writeFileSync(permissionsJsonPath, JSON.stringify(permissionsJson, null, 2));
+  console.log(`Successfully patched ${permissionsJsonPath}`);
+}
 // Initialization end
 
 const app = express();
