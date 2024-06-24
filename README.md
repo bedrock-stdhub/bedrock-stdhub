@@ -1,4 +1,4 @@
-# mc-bedrock-stdhub
+# bedrock-stdhub
 
 A completely external 'hub' to load plugins with Bedrock Dedicated Server.
 
