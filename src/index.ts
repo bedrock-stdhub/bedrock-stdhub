@@ -103,7 +103,7 @@ fs.writeFileSync(
   path.join(levelRoot, 'world_resource_packs.json'),
   JSON.stringify(worldResourcePacks, null, 2)
 );
-console.log(`Successfully created \`${levelRoot}/world_*_json\`s.`);
+console.log(`Successfully created \`${levelRoot}${path.sep}world_*_json\`s.`);
 // Plugin loading end
 
 const app = express();
