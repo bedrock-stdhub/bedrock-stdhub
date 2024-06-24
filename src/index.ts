@@ -9,6 +9,7 @@ import fileApiRouter from '@/api/file';
 import configRouter from '@/api/config';
 import PropertiesReader from 'properties-reader';
 import JSZip from 'jszip';
+import commandLineArgs from 'command-line-args';
 
 // check for platform
 let bdsCommand: string = '';
@@ -31,6 +32,20 @@ switch (os.platform()) {
 if (!fs.existsSync('bedrock_server') && !fs.existsSync('bedrock_server.exe')) {
   console.log('BDS binary file not found. Please check your installation.');
   process.exit(1);
+}
+
+const options = commandLineArgs([
+  { name: 'debug-mode', type: Boolean }
+]);
+
+if (options['debug-mode']) {
+  console.log('====== ATTENTION ======');
+  console.log('The application is running under DEBUG MODE.');
+  console.log('It will listen to every existent file in `plugins` folder.');
+  console.log('When any file changes, it will copy new plugin files to the world folder and delete the old.');
+  console.log('However, it won\'t listen to new files, nor will it copy it to the world folder.');
+  console.log('So if you want to have a test on new plugins, please restart the application.');
+  console.log();
 }
 
 // Initialization begin
@@ -96,6 +111,14 @@ for (const pluginFileName of plugins) {
     path.join(levelRoot, 'behavior_packs', pluginName, 'manifest.json')).toString());
   worldBehaviorPacks.push({ pack_id: bpManifest.header.uuid, version: bpManifest.header.version });
   worldResourcePacks.push({ pack_id: rpManifest.header.uuid, version: rpManifest.header.version });
+
+  if (options['debug-mode']) {
+    fs.watchFile(path.join(pluginsRoot, pluginFileName), async () => {
+      const addon = await JSZip.loadAsync(fs.readFileSync(path.join(pluginsRoot, pluginFileName)));
+      await extractMCAddon(pluginName, addon);
+      console.log(`Plugin ${pluginFileName} changed. Please execute \`/reload\` to see changes.`);
+    });
+  }
 
   console.log(`Loaded plugin \`${pluginFileName}\`.`);
 }
