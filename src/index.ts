@@ -49,6 +49,16 @@ if (!permissionsJson.allowed_modules.includes('@minecraft/server-net')) {
 // Initialization end
 
 // Plugin loading start
+async function extractMCAddon(pluginName: string, addon: JSZip) {
+  const behaviorPack = await JSZip.loadAsync(addon.file(`${pluginName}_bp.mcpack`)!.async('nodebuffer'));
+  const resourcePack = await JSZip.loadAsync(addon.file(`${pluginName}_rp.mcpack`)!.async('nodebuffer'));
+
+  const bpRoot = path.join(levelRoot, 'behavior_packs', pluginName);
+  const rpRoot = path.join(levelRoot, 'resource_packs', pluginName);
+  await extractAll(behaviorPack, bpRoot);
+  await extractAll(resourcePack, rpRoot);
+}
+
 async function extractAll(zip: JSZip, toPath: string) {
   for (const filename of Object.keys(zip.files)) {
     const file = zip.files[filename];
@@ -79,16 +89,11 @@ const worldResourcePacks: { pack_id: string, version: number[] }[] = [];
 for (const pluginFileName of plugins) {
   const pluginName = pluginFileName.substring(0, pluginFileName.length - 8);
   const addon = await JSZip.loadAsync(fs.readFileSync(path.join(pluginsRoot, pluginFileName)));
-  const behaviorPack = await JSZip.loadAsync(addon.file(`${pluginName}_bp.mcpack`)!.async('nodebuffer'));
-  const resourcePack = await JSZip.loadAsync(addon.file(`${pluginName}_rp.mcpack`)!.async('nodebuffer'));
-
-  const bpRoot = path.join(levelRoot, 'behavior_packs', pluginFileName);
-  const rpRoot = path.join(levelRoot, 'resource_packs', pluginFileName);
-  await extractAll(behaviorPack, bpRoot);
-  await extractAll(resourcePack, rpRoot);
-
-  const bpManifest = JSON.parse(fs.readFileSync(path.join(bpRoot, 'manifest.json')).toString());
-  const rpManifest = JSON.parse(fs.readFileSync(path.join(rpRoot, 'manifest.json')).toString());
+  await extractMCAddon(pluginName, addon);
+  const bpManifest = JSON.parse(fs.readFileSync(
+    path.join(levelRoot, 'behavior_packs', pluginName, 'manifest.json')).toString());
+  const rpManifest = JSON.parse(fs.readFileSync(
+    path.join(levelRoot, 'behavior_packs', pluginName, 'manifest.json')).toString());
   worldBehaviorPacks.push({ pack_id: bpManifest.header.uuid, version: bpManifest.header.version });
   worldResourcePacks.push({ pack_id: rpManifest.header.uuid, version: rpManifest.header.version });
 
