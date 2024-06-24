@@ -49,7 +49,7 @@ if (options['debug-mode']) {
 }
 
 // Initialization begin
-export const pluginsRoot = 'plugins';
+export const pluginsRoot = path.resolve('plugins');
 fsExtra.ensureDirSync(pluginsRoot);
 
 const permissionsJsonPath = path.join('config', 'default', 'permissions.json');

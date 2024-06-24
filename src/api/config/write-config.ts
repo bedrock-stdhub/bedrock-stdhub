@@ -24,7 +24,12 @@ const writeConfigAction: Action = {
   handler: (params: FromSchema<typeof schema>) => {
     fsExtra.ensureDirSync(path.resolve(pluginsRoot, params.pluginName));
     const configFilePath = path.resolve(pluginsRoot, params.pluginName, `${params.subConfigName || 'config'}.yaml`);
+    if (!configFilePath.startsWith(`${pluginsRoot}${path.sep}`)) {
+      return { status: 400 };
+    }
+
     fs.writeFileSync(configFilePath, YAML.stringify(params.config));
+    return {};
   }
 };
 

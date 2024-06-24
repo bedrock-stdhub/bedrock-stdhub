@@ -25,12 +25,16 @@ const readConfigAction: Action = {
     fsExtra.ensureDirSync(pluginRoot);
 
     const configFilePath = path.resolve(pluginRoot, `${params.subConfigName || 'config'}.yaml`);
+    if (!configFilePath.startsWith(`${pluginsRoot}${path.sep}`)) {
+      return { status: 400 };
+    }
+
     if (!fs.existsSync(configFilePath)) {
       fs.writeFileSync(configFilePath, YAML.stringify(params.defaults));
-      return params.defaults;
+      return { data: params.defaults };
     } else {
       const readObj = YAML.parse(fs.readFileSync(configFilePath).toString());
-      return deepMerge(readObj, params.defaults);
+      return { data: deepMerge(readObj, params.defaults) };
     }
   }
 };

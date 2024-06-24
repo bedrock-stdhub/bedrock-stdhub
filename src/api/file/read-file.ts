@@ -1,6 +1,8 @@
 import { FromSchema, JSONSchema } from 'json-schema-to-ts';
 import fs from 'fs';
 import { Action } from '@/utils/action';
+import path from 'node:path';
+import process from 'node:process';
 
 const schema = {
   type: 'object',
@@ -15,14 +17,19 @@ const schema = {
 const readFileAction: Action = {
   schema,
   handler: (params: FromSchema<typeof schema>) => {
-    const buffer = fs.readFileSync(params.path);
+    const absolutePath = path.resolve(params.path);
+    if (!absolutePath.startsWith(`${process.cwd()}${path.sep}`)) {
+      return { status: 400 };
+    }
+
+    const buffer = fs.readFileSync(absolutePath);
     if (params.response === 'text') {
       return {
-        result: [ ...buffer ],
+        data: { result: [ ...buffer ] }
       };
     } else {
       return {
-        result: buffer.toString('utf-8')
+        data: { result: buffer.toString('utf-8') }
       };
     }
   }
