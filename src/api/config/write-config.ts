@@ -4,6 +4,7 @@ import path from 'node:path';
 import { pluginsRoot } from '@/index';
 import fs from 'fs';
 import YAML from 'yaml';
+import fsExtra from 'fs-extra';
 
 const schema = {
   type: 'object',
@@ -21,6 +22,7 @@ const schema = {
 const writeConfigAction: Action = {
   schema,
   handler: (params: FromSchema<typeof schema>) => {
+    fsExtra.ensureDirSync(path.resolve(pluginsRoot, params.pluginName));
     const configFilePath = path.resolve(pluginsRoot, params.pluginName, `${params.subConfigName || 'config'}.yaml`);
     fs.writeFileSync(configFilePath, YAML.stringify(params.config));
   }

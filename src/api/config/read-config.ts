@@ -5,6 +5,7 @@ import fs from 'fs';
 import * as path from 'node:path';
 import { pluginsRoot } from '@/index';
 import YAML from 'yaml';
+import fsExtra from 'fs-extra';
 
 const schema = {
   type: 'object',
@@ -20,10 +21,8 @@ const schema = {
 const readConfigAction: Action = {
   schema,
   handler: (params: FromSchema<typeof schema>) => {
-    const pluginRoot = path.resolve(pluginsRoot, params.pluginName);
-    if (!fs.existsSync(pluginRoot)) {
-      fs.mkdirSync(pluginRoot);
-    }
+    const pluginRoot = path.join(pluginsRoot, params.pluginName);
+    fsExtra.ensureDirSync(pluginRoot);
 
     const configFilePath = path.resolve(pluginRoot, `${params.subConfigName || 'config'}.yaml`);
     if (!fs.existsSync(configFilePath)) {
