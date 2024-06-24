@@ -1,11 +1,14 @@
 import express from 'express';
 import { spawn } from 'node:child_process';
 import fs from 'node:fs';
-import * as path from 'node:path';
-import * as process from 'node:process';
+import fsExtra from 'fs-extra';
+import path from 'node:path';
+import process from 'node:process';
 import os from 'node:os';
 import fileApiRouter from '@/api/file';
 import configRouter from '@/api/config';
+import PropertiesReader from 'properties-reader';
+import JSZip from 'jszip';
 
 // check for platform
 let bdsCommand: string = '';
@@ -32,9 +35,7 @@ if (!fs.existsSync('bedrock_server') && !fs.existsSync('bedrock_server.exe')) {
 
 // Initialization begin
 export const pluginsRoot = 'plugins';
-if (!fs.existsSync(pluginsRoot)) {
-  fs.mkdirSync(pluginsRoot);
-}
+fsExtra.ensureDirSync(pluginsRoot);
 
 const permissionsJsonPath = path.join('config', 'default', 'permissions.json');
 const permissionsJson = JSON.parse(
@@ -47,13 +48,71 @@ if (!permissionsJson.allowed_modules.includes('@minecraft/server-net')) {
 }
 // Initialization end
 
+// Plugin loading start
+async function extractAll(zip: JSZip, toPath: string) {
+  for (const filename of Object.keys(zip.files)) {
+    const file = zip.files[filename];
+    const outputPath = path.join(toPath, filename);
+    if (file.dir) {
+      fsExtra.ensureDirSync(outputPath);
+    } else {
+      const content = await file.async('nodebuffer');
+      fsExtra.ensureDirSync(path.dirname(outputPath));
+      fs.writeFileSync(outputPath, content);
+    }
+  }
+}
+
+const serverProperties = PropertiesReader('server.properties');
+const levelRoot = path.join('worlds', serverProperties.get('level-name')!.toString());
+
+fsExtra.removeSync(path.join(levelRoot, 'behavior_packs'));
+fsExtra.removeSync(path.join(levelRoot, 'resource_packs'));
+console.log('Removed old `behavior_packs` and `resource_packs`.');
+
+fsExtra.ensureDirSync(path.join(levelRoot, 'behavior_packs'));
+fsExtra.ensureDirSync(path.join(levelRoot, 'resource_packs'));
+
+const plugins = fs.readdirSync(pluginsRoot).filter(fileName => fileName.endsWith('.mcaddon'));
+const worldBehaviorPacks: { pack_id: string, version: number[] }[] = [];
+const worldResourcePacks: { pack_id: string, version: number[] }[] = [];
+for (const pluginFileName of plugins) {
+  const pluginName = pluginFileName.substring(0, pluginFileName.length - 8);
+  const addon = await JSZip.loadAsync(fs.readFileSync(path.join(pluginsRoot, pluginFileName)));
+  const behaviorPack = await JSZip.loadAsync(addon.file(`${pluginName}_bp.mcpack`)!.async('nodebuffer'));
+  const resourcePack = await JSZip.loadAsync(addon.file(`${pluginName}_rp.mcpack`)!.async('nodebuffer'));
+
+  const bpRoot = path.join(levelRoot, 'behavior_packs', pluginFileName);
+  const rpRoot = path.join(levelRoot, 'resource_packs', pluginFileName);
+  await extractAll(behaviorPack, bpRoot);
+  await extractAll(resourcePack, rpRoot);
+
+  const bpManifest = JSON.parse(fs.readFileSync(path.join(bpRoot, 'manifest.json')).toString());
+  const rpManifest = JSON.parse(fs.readFileSync(path.join(rpRoot, 'manifest.json')).toString());
+  worldBehaviorPacks.push({ pack_id: bpManifest.header.uuid, version: bpManifest.header.version });
+  worldResourcePacks.push({ pack_id: rpManifest.header.uuid, version: rpManifest.header.version });
+
+  console.log(`Loaded plugin \`${pluginFileName}\`.`);
+}
+
+fs.writeFileSync(
+  path.join(levelRoot, 'world_behavior_packs.json'),
+  JSON.stringify(worldBehaviorPacks, null, 2)
+);
+fs.writeFileSync(
+  path.join(levelRoot, 'world_resource_packs.json'),
+  JSON.stringify(worldResourcePacks, null, 2)
+);
+console.log(`Successfully created \`${levelRoot}/world_*_json\`s.`);
+// Plugin loading end
+
 const app = express();
 app.use(express.json());
 app.use('/file', fileApiRouter);
 app.use('/config', configRouter);
 
-const STDHUB_PORT = 29202;
-app.listen(STDHUB_PORT, () => {
+const stdhubServerPort = 29202;
+app.listen(stdhubServerPort, () => {
   // console.log('Server started on *:29202');
   console.log('Starting BDS process...');
   console.log();
