@@ -44,7 +44,7 @@ if (options['debug-mode']) {
   console.log('The application is running under DEBUG MODE.');
   console.log('It will listen to every existent file in `plugins` folder.');
   console.log('When any file changes, it will copy new plugin files to the world folder and delete the old.');
-  console.log('However, it won\'t listen to new files, nor will it copy it to the world folder.');
+  console.log('However, it won\'t listen to newly added files, nor will it copy it to the world folder.');
   console.log('So if you want to have a test on new plugins, please restart the application.');
   console.log();
 }
