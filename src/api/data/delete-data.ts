@@ -19,7 +19,7 @@ const schema = {
 const deleteDataAction: Action = {
   schema,
   handler: (params: FromSchema<typeof schema>) => {
-    const dataFilePath = path.resolve(pluginsRoot, params.namespace, params.subDataPath);
+    const dataFilePath = path.resolve(pluginsRoot, params.namespace, 'data', params.subDataPath);
     if (!dataFilePath.startsWith(`${pluginsRoot}${path.sep}`)) {
       return { status: 400 };
     }
