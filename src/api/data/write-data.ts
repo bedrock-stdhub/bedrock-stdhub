@@ -16,8 +16,6 @@ const schema = {
   additionalProperties: false,
 } as const satisfies JSONSchema;
 
-// First read, then write.
-// If write first, server will return a 502.
 const writeDataAction: Action = {
   schema,
   handler: (params: FromSchema<typeof schema>) => {
