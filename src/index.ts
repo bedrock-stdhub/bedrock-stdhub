@@ -11,6 +11,7 @@ import dataRouter from '@/api/data';
 import PropertiesReader from 'properties-reader';
 import JSZip from 'jszip';
 import commandLineArgs from 'command-line-args';
+import portFinder from 'portfinder';
 
 // check for platform
 let bdsCommand: string = '';
@@ -163,16 +164,26 @@ app.use('/file', fileApiRouter);
 app.use('/config', configRouter);
 app.use('/data', dataRouter);
 
-const stdhubServerPort = 29202;
-app.listen(stdhubServerPort, () => {
-  // console.log('Server started on *:29202');
-  console.log('Starting BDS process...');
-  console.log();
+portFinder.getPort((err, port) => {
+  if (err) {
+    console.error(err);
+    process.exit(1);
+  }
 
-  const bdsProcess = spawn(bdsCommand, { stdio: 'inherit' });
-  bdsProcess.on('close', (code) => {
-    console.log('\x1b[0m');
-    console.log('BDS process exited with code', code ?? 0);
-    process.exit(code);
+  fs.writeFileSync(path.join('config', 'default', 'variables.json'), JSON.stringify({
+    backendAddress: `http://localhost:${port}`
+  }));
+
+  app.listen(port, () => {
+    console.log(`Backend server started on *:${port}`);
+    console.log('Starting BDS process...');
+    console.log();
+
+    const bdsProcess = spawn(bdsCommand, { stdio: 'inherit' });
+    bdsProcess.on('close', (code) => {
+      console.log('\x1b[0m');
+      console.log('BDS process exited with code', code ?? 0);
+      process.exit(code);
+    });
   });
 });
