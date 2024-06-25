@@ -23,7 +23,7 @@ const readFileAction: Action = {
     }
 
     const buffer = fs.readFileSync(absolutePath);
-    if (params.response === 'text') {
+    if (params.response === 'bytes') {
       return {
         data: { result: [ ...buffer ] }
       };
