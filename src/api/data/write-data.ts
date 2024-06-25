@@ -8,11 +8,11 @@ import fsExtra from 'fs-extra';
 const schema = {
   type: 'object',
   properties: {
-    pluginName: { type: 'string' },
+    namespace: { type: 'string' },
     subDataPath: { type: 'string' },
     data: { type: 'object' }
   },
-  required: [ 'pluginName', 'subDataPath', 'data' ],
+  required: [ 'namespace', 'subDataPath', 'data' ],
   additionalProperties: false,
 } as const satisfies JSONSchema;
 
@@ -21,7 +21,7 @@ const schema = {
 const writeDataAction: Action = {
   schema,
   handler: (params: FromSchema<typeof schema>) => {
-    const dataFilePath = path.resolve(pluginsRoot, params.pluginName, params.subDataPath);
+    const dataFilePath = path.resolve(pluginsRoot, params.namespace, params.subDataPath);
     fsExtra.ensureDirSync(dataFilePath);
     if (!dataFilePath.startsWith(`${pluginsRoot}${path.sep}`)) {
       return { status: 400 };

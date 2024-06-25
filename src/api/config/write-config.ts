@@ -9,11 +9,11 @@ import fsExtra from 'fs-extra';
 const schema = {
   type: 'object',
   properties: {
-    pluginName: { type: 'string' },
+    namespace: { type: 'string' },
     subConfigName: { type: 'string' },
     config: { type: 'object' }
   },
-  required: [ 'pluginName', 'config' ],
+  required: [ 'namespace', 'config' ],
   additionalProperties: false,
 } as const satisfies JSONSchema;
 
@@ -22,8 +22,8 @@ const schema = {
 const writeConfigAction: Action = {
   schema,
   handler: (params: FromSchema<typeof schema>) => {
-    fsExtra.ensureDirSync(path.resolve(pluginsRoot, params.pluginName));
-    const configFilePath = path.resolve(pluginsRoot, params.pluginName, `${params.subConfigName || 'config'}.yaml`);
+    fsExtra.ensureDirSync(path.resolve(pluginsRoot, params.namespace));
+    const configFilePath = path.resolve(pluginsRoot, params.namespace, `${params.subConfigName || 'config'}.yaml`);
     if (!configFilePath.startsWith(`${pluginsRoot}${path.sep}`)) {
       return { status: 400 };
     }

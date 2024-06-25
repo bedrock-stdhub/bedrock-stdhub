@@ -10,18 +10,18 @@ import fsExtra from 'fs-extra';
 const schema = {
   type: 'object',
   properties: {
-    pluginName: { type: 'string' },
+    namespace: { type: 'string' },
     subConfigName: { type: 'string' },
     defaults: { type: 'object' }
   },
-  required: [ 'pluginName', 'defaults' ],
+  required: [ 'namespace', 'defaults' ],
   additionalProperties: false,
 } as const satisfies JSONSchema;
 
 const readConfigAction: Action = {
   schema,
   handler: (params: FromSchema<typeof schema>) => {
-    const pluginRoot = path.join(pluginsRoot, params.pluginName);
+    const pluginRoot = path.join(pluginsRoot, params.namespace);
     fsExtra.ensureDirSync(pluginRoot);
 
     const configFilePath = path.resolve(pluginRoot, `${params.subConfigName || 'config'}.yaml`);

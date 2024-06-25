@@ -7,10 +7,10 @@ import fs from 'fs';
 const schema = {
   type: 'object',
   properties: {
-    pluginName: { type: 'string' },
+    namespace: { type: 'string' },
     subDataPath: { type: 'string' },
   },
-  required: [ 'pluginName', 'subDataPath' ],
+  required: [ 'namespace', 'subDataPath' ],
   additionalProperties: false,
 } as const satisfies JSONSchema;
 
@@ -19,7 +19,7 @@ const schema = {
 const deleteDataAction: Action = {
   schema,
   handler: (params: FromSchema<typeof schema>) => {
-    const dataFilePath = path.resolve(pluginsRoot, params.pluginName, params.subDataPath);
+    const dataFilePath = path.resolve(pluginsRoot, params.namespace, params.subDataPath);
     if (!dataFilePath.startsWith(`${pluginsRoot}${path.sep}`)) {
       return { status: 400 };
     }
