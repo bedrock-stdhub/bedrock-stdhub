@@ -34,7 +34,7 @@ const readConfigAction: Action = {
       return { data: params.defaults };
     } else {
       const readObj = YAML.parse(fs.readFileSync(configFilePath).toString());
-      return { data: deepMerge(readObj, params.defaults) };
+      return { data: deepMerge(params.defaults, readObj) };
     }
   }
 };
