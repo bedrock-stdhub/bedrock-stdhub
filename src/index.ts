@@ -66,6 +66,27 @@ if (!permissionsJson.allowed_modules.includes('@minecraft/server-net')) {
 
 const serverProperties = PropertiesReader('server.properties');
 const levelRoot = path.join('worlds', serverProperties.get('level-name')!.toString());
+
+/*
+  const levelDatPath = path.join(levelRoot, 'level.dat');
+  fs.copyFileSync(levelDatPath, `${levelDatPath}_old`);
+  const { parsed: levelDat, type: levelDatType } = await nbt.parse(fs.readFileSync(levelDatPath));
+  console.log(1, levelDat.value['experiments']);
+  levelDat.value['experiments'] = nbt.comp({
+    experiments_ever_used: nbt.byte(1),
+    gametest: nbt.byte(1),
+    saved_with_toggled_experiments: nbt.byte(1),
+  });
+  console.log(2, levelDat.value['experiments']);
+  fs.writeFileSync(levelDatPath, nbt.writeUncompressed(levelDat, levelDatType));
+  console.log(3, (await nbt.parse(fs.readFileSync(levelDatPath))).parsed.value['experiments']);
+  console.log('Successfully patched `level.dat`.');
+ */
+// A weird issue: `level.dat` is patched through this segment of code.
+// However, when the BDS instance launches, the newly patched `level.dat` just returns to what it had been like.
+// This issue only happens when I patch this file with such code.
+// When I manually enable experimental APIs in Minecraft client, it just works.
+
 // Initialization end
 
 // Plugin loading start
