@@ -59,9 +59,13 @@ const permissionsJson = JSON.parse(
 ) as { allowed_modules: string[] };
 if (!permissionsJson.allowed_modules.includes('@minecraft/server-net')) {
   permissionsJson.allowed_modules.push('@minecraft/server-net');
+  fs.copyFileSync(permissionsJsonPath, `${permissionsJsonPath}.bak`);
   fs.writeFileSync(permissionsJsonPath, JSON.stringify(permissionsJson, null, 2));
-  console.log(`Successfully patched ${permissionsJsonPath}`);
+  console.log(`Successfully patched \`${permissionsJsonPath}\`.`);
 }
+
+const serverProperties = PropertiesReader('server.properties');
+const levelRoot = path.join('worlds', serverProperties.get('level-name')!.toString());
 // Initialization end
 
 // Plugin loading start
@@ -88,9 +92,6 @@ async function extractAll(zip: JSZip, toPath: string) {
     }
   }
 }
-
-const serverProperties = PropertiesReader('server.properties');
-const levelRoot = path.join('worlds', serverProperties.get('level-name')!.toString());
 
 fsExtra.removeSync(path.join(levelRoot, 'behavior_packs'));
 fsExtra.removeSync(path.join(levelRoot, 'resource_packs'));
