@@ -19,13 +19,13 @@ const schema = {
 const writeDataAction: Action = {
   schema,
   handler: (params: FromSchema<typeof schema>) => {
-    const dataPath = path.resolve(pluginsRoot, params.namespace, 'data');
-    const dataFilePath = path.resolve(dataPath, params.subDataPath);
-    fsExtra.ensureDirSync(dataPath);
+    const dataFilePath = path.resolve(pluginsRoot, params.namespace, 'data', params.subDataPath);
+    const dataFileDirname = path.dirname(dataFilePath);
     if (!dataFilePath.startsWith(`${pluginsRoot}${path.sep}`)) {
       return { status: 400 };
     }
 
+    fsExtra.ensureDirSync(dataFileDirname);
     fs.writeFileSync(dataFilePath, JSON.stringify(params.data));
     return {};
   }
