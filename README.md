@@ -1,19 +1,14 @@
 # bedrock-stdhub
 
-A completely external 'hub' to load plugins with Bedrock Dedicated Server.
+English | [简体中文](README.zh.md)
 
-The word 'stdhub' is a combination of 'stdlib' and 'hub'. This application acts as a 'hub' to load plugins in form of behavior packs and provides plugins with a set of so-called 'standard libraries' for Server-side behavior packs to 'break out of' Scripting environment.
+A completely external 'hub' to load plugins with _unmodified_ Bedrock Dedicated Server.
+
+The word 'stdhub' is a combination of 'stdlib' and 'hub'. This application acts as a 'hub' to load plugins in form of behavior packs and provides plugins with a set of so-called 'standard libraries' for Server-side behavior packs to break out of the 'sandbox' of Scripting environment.
 
 # Usage
 
-Put the published executable and a BDS executable (named `bedrock_server(.exe)` by default) in the same directory. Then simply execute `bedrock-stdhub-(architecture)` to start the server.
-
-Notice that you have to manually enable beta APIs in the 'Experiments' page, since the plugins count on the module `@minecraft/server-net`, which is currently a beta module, to function.
-![enable beta APIs](/assets/README-enable-beta-apis.png)
-
-So the best approach is generating a world in Minecraft game, copying the world folder to `path/to/bds/worlds` and rename the folder to `Bedrock level` (or whatever you've specified in your `server.properties`), instead of letting BDS generate a world.
-
-To add plugins, please copy the built `.mcaddon` file into `plugins` folder.
+Please refer to the [documentation](https://bedrock-stdhub.gdt.pub/get-started.html) on the official website.
 
 ## Debug Mode
 
