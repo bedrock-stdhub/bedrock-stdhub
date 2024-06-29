@@ -1,10 +1,11 @@
 import { ChildProcessWithoutNullStreams } from 'child_process';
 import { spawn } from 'node:child_process';
 import process from 'node:process';
+import { ScriptEvent } from '@/event/ScriptEvent';
 
 let bdsProcess: ChildProcessWithoutNullStreams| null = null;
 
-export function $accessBdsProcess() {
+function $accessInstance() {
   if (!bdsProcess) {
     throw 'Child process not initialized';
   } else {
@@ -23,10 +24,18 @@ export function $initialize(bdsCommand: string) {
   });
   process.stdin.on('data', (data) => {
     if (data.toString().startsWith('.')) {
-      console.log(data.toString());
+      // logic handling commands?
     }
-    bdsProcess!.stdin.write(data);
+    $accessInstance().stdin.write(data);
   });
 
   return bdsProcess;
+}
+
+export function sendCommand(command: string) {
+  $accessInstance().stdin.write(`${command}\r\n`); // only tested on Windows
+}
+
+export function triggerScriptEvent(namespace: string, event: ScriptEvent) {
+  sendCommand(`scriptevent ${namespace}:${event.eventName} ${JSON.stringify(event)}`);
 }
