@@ -12,6 +12,7 @@ import JSZip from 'jszip';
 import commandLineArgs from 'command-line-args';
 import portFinder from 'portfinder';
 import { $initialize } from '@/terminal';
+import commandRouter from '@/api/command';
 
 // check for platform
 let bdsCommand: string = '';
@@ -163,6 +164,7 @@ app.use(express.json());
 app.use('/file', fileApiRouter);
 app.use('/config', configRouter);
 app.use('/data', dataRouter);
+app.use('/command', commandRouter);
 
 portFinder.getPort((err, port) => {
   if (err) {
