@@ -1,5 +1,4 @@
 import express from 'express';
-import { spawn } from 'node:child_process';
 import fs from 'node:fs';
 import fsExtra from 'fs-extra';
 import path from 'node:path';
@@ -12,6 +11,7 @@ import PropertiesReader from 'properties-reader';
 import JSZip from 'jszip';
 import commandLineArgs from 'command-line-args';
 import portFinder from 'portfinder';
+import { $initialize } from '@/terminal';
 
 // check for platform
 let bdsCommand: string = '';
@@ -179,7 +179,7 @@ portFinder.getPort((err, port) => {
     console.log('Starting BDS process...');
     console.log();
 
-    const bdsProcess = spawn(bdsCommand, { stdio: 'inherit' });
+    const bdsProcess = $initialize(bdsCommand);
     bdsProcess.on('close', (code) => {
       console.log('\x1b[0m');
       console.log('BDS process exited with code', code ?? 0);
