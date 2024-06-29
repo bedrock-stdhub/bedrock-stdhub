@@ -18,7 +18,6 @@ export function registerCommand(namespace: string, commandName: string): boolean
 }
 
 export function resolveCommand(commandString: string): { namespace: string, resolvedText: string } | null {
-  console.log(`Received command: ${commandString}`);
   const [ commandName ] = commandString.split(' ', 1);
   if (commandName.includes(':')) {
     if (!commands.has(commandName)) {

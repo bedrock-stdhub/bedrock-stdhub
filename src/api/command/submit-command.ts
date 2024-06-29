@@ -8,15 +8,18 @@ const schema = {
   type: 'object',
   properties: {
     playerId: { type: 'string' },
+    playerName: { type: 'string' },
     commandString: { type: 'string' },
   },
-  required: [ 'playerId', 'commandString' ],
+  required: [ 'playerId', 'playerName', 'commandString' ],
   additionalProperties: false,
 } as const satisfies JSONSchema;
 
 const submitCommandAction: Action = {
   schema,
   handler: (params: FromSchema<typeof schema>) => {
+    console.log(`Player ${params.playerName} tries to call plugin command ${params.commandString}`);
+
     const resolved = resolveCommand(params.commandString);
     if (!resolved) {
       return { status: 404 };
