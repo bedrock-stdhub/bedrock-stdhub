@@ -4,6 +4,7 @@ import process from 'node:process';
 import { ScriptEvent } from '@/event/ScriptEvent';
 import readConfigAction from '@/api/config/read-config';
 import { triggerCommand } from '@/api/command/submit-command';
+import { logAction } from '@/api/log';
 
 let bdsProcess: ChildProcessWithoutNullStreams| null = null;
 
@@ -36,7 +37,13 @@ export function $initialize(bdsCommand: string) {
         customCommandPrefix.length,
         dataString.length - 2
       );
-      triggerCommand(commandString);
+      const triggerResult = triggerCommand(commandString);
+      if (triggerResult.status === 404) {
+        logAction.handler({
+          namespace: 'stdhub',
+          content: '§cUnknown command: ${commandName}. Please check that the command exists and you have permission to use it.'
+        });
+      }
       return;
     }
     $accessInstance().stdin.write(data);

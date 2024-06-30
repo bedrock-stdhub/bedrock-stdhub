@@ -15,7 +15,7 @@ const schema = {
   additionalProperties: false,
 } as const satisfies JSONSchema;
 
-const logAction = {
+export const logAction = {
   schema,
   handler: (params: FromSchema<typeof schema>) => {
     console.log(`[${params.namespace}] ${replaceMinecraftColors(params.content)}`);
