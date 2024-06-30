@@ -42,3 +42,8 @@ export function resolveCommand(commandString: string): { namespace: string, reso
     }
   }
 }
+
+export function $clearRegistry() {
+  commands.clear();
+  defaultCommandNames.clear();
+}

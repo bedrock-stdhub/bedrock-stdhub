@@ -187,7 +187,7 @@ export default async function loadPlugins() {
             path.join(pluginScriptRoot, entryScriptName),
             await plugin.file('script.js')!.async('nodebuffer'),
           );
-          console.log(`Plugin ${pluginFileName} changed. Please execute \`/reload\` to see changes.`);
+          console.log(`Plugin ${pluginFileName} changed. Please execute \`reload\` AT THE TERMINAL to see changes.`);
         });
       }
 

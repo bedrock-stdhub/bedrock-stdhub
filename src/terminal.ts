@@ -5,6 +5,7 @@ import { ScriptEvent } from '@/event/ScriptEvent';
 import readConfigAction from '@/api/config/read-config';
 import { triggerCommand } from '@/api/command/submit-command';
 import { logAction } from '@/api/log';
+import { $clearRegistry } from '@/command';
 
 let bdsProcess: ChildProcessWithoutNullStreams| null = null;
 
@@ -45,6 +46,10 @@ export function $initialize(bdsCommand: string) {
         });
       }
       return;
+    }
+
+    if (data.toString() === 'reload\r\n') {
+      $clearRegistry();
     }
     $accessInstance().stdin.write(data);
   });
