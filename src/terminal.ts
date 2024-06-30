@@ -2,6 +2,8 @@ import { ChildProcessWithoutNullStreams } from 'child_process';
 import { spawn } from 'node:child_process';
 import process from 'node:process';
 import { ScriptEvent } from '@/event/ScriptEvent';
+import readConfigAction from '@/api/config/read-config';
+import { triggerCommand } from '@/api/command/submit-command';
 
 let bdsProcess: ChildProcessWithoutNullStreams| null = null;
 
@@ -16,6 +18,11 @@ function $accessInstance() {
 export function $initialize(bdsCommand: string) {
   bdsProcess = spawn(bdsCommand, { stdio: 'pipe' });
 
+  const customCommandPrefix = readConfigAction.handler({
+    namespace: 'command-core',
+    defaults: { commandPrefix: '.' }
+  }).data!.commandPrefix as string;
+
   bdsProcess.stdout.on('data', (data) => {
     process.stdout.write(data);
   });
@@ -23,8 +30,14 @@ export function $initialize(bdsCommand: string) {
     process.stderr.write(data);
   });
   process.stdin.on('data', (data) => {
-    if (data.toString().startsWith('.')) {
-      // logic handling commands?
+    if (data.toString().startsWith(customCommandPrefix)) {
+      const dataString = data.toString();
+      const commandString = dataString.slice(
+        customCommandPrefix.length,
+        dataString.length - 2
+      );
+      triggerCommand(commandString);
+      return;
     }
     $accessInstance().stdin.write(data);
   });
