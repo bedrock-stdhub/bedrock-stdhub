@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import JSZip from 'jszip';
 import path from 'node:path';
-import { levelRoot, pluginsRoot } from '@/index';
+import { cmdLineOptions, levelRoot, pluginsRoot } from '@/index';
 import fsExtra from 'fs-extra';
 import { randomUUID } from 'node:crypto';
 import YAML from 'yaml';
@@ -178,6 +178,19 @@ export default async function loadPlugins() {
       worldBehaviorPacks.push({
         pack_id: pluginUUID, version: pluginVersionArray
       });
+
+      if (cmdLineOptions['debug-mode']) {
+        fs.watchFile(path.join(pluginsRoot, pluginFileName), async () => {
+          console.log('Triggered');
+          const plugin = await JSZip.loadAsync(fs.readFileSync(path.join('plugins', pluginFileName)));
+          fs.writeFileSync(
+            path.join(pluginScriptRoot, entryScriptName),
+            await plugin.file('script.js')!.async('nodebuffer'),
+          );
+          console.log(`Plugin ${pluginFileName} changed. Please execute \`/reload\` to see changes.`);
+        });
+      }
+
       loadedPluginNumber++;
     } catch (e) {
       console.log(`Bad plugin ${pluginFileName}:`, e);
