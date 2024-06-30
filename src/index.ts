@@ -15,6 +15,15 @@ import portFinder from 'portfinder';
 import { $initialize } from '@/terminal';
 import loadPlugins from '@/load-plugin';
 
+export const cmdLineOptions = commandLineArgs([
+  { name: 'debug-mode', type: Boolean }
+]);
+
+export const pluginsRoot = path.resolve('plugins');
+
+const serverProperties = PropertiesReader('server.properties');
+export const levelRoot = path.join('worlds', serverProperties.get('level-name')!.toString());
+
 // check for platform
 let bdsCommand: string = '';
 switch (os.platform()) {
@@ -38,10 +47,6 @@ if (!fs.existsSync('bedrock_server') && !fs.existsSync('bedrock_server.exe')) {
   process.exit(1);
 }
 
-export const cmdLineOptions = commandLineArgs([
-  { name: 'debug-mode', type: Boolean }
-]);
-
 if (cmdLineOptions['debug-mode']) {
   console.log('====== ATTENTION ======');
   console.log('The application is running under DEBUG MODE.');
@@ -53,7 +58,6 @@ if (cmdLineOptions['debug-mode']) {
 }
 
 // Initialization begin
-export const pluginsRoot = path.resolve('plugins');
 fsExtra.ensureDirSync(pluginsRoot);
 
 const permissionsJsonPath = path.join('config', 'default', 'permissions.json');
@@ -66,9 +70,6 @@ if (!permissionsJson.allowed_modules.includes('@minecraft/server-net')) {
   fs.writeFileSync(permissionsJsonPath, JSON.stringify(permissionsJson, null, 2));
   console.log(`Successfully patched \`${permissionsJsonPath}\`.`);
 }
-
-const serverProperties = PropertiesReader('server.properties');
-export const levelRoot = path.join('worlds', serverProperties.get('level-name')!.toString());
 
 /*
   const levelDatPath = path.join(levelRoot, 'level.dat');
@@ -92,45 +93,43 @@ export const levelRoot = path.join('worlds', serverProperties.get('level-name')!
 
 // Initialization end
 
-// Plugin loading start
+async function main(){
+  fsExtra.removeSync(path.join(levelRoot, 'behavior_packs'));
+  fsExtra.removeSync(path.join(levelRoot, 'resource_packs'));
+  console.log('Removed old `behavior_packs` and `resource_packs`.');
+  await loadPlugins();
 
+  const app = express();
+  app.use(express.json());
+  app.use('/file', fileApiRouter);
+  app.use('/config', configRouter);
+  app.use('/data', dataRouter);
+  app.use('/command', commandRouter);
+  app.use('/log', logRouter);
 
-fsExtra.removeSync(path.join(levelRoot, 'behavior_packs'));
-fsExtra.removeSync(path.join(levelRoot, 'resource_packs'));
-console.log('Removed old `behavior_packs` and `resource_packs`.');
+  portFinder.getPort((err, port) => {
+    if (err) {
+      console.error(err);
+      process.exit(1);
+    }
 
-await loadPlugins();
+    fs.writeFileSync(path.join('config', 'default', 'variables.json'), JSON.stringify({
+      backendAddress: `http://localhost:${port}`,
+    }));
 
-// Plugin loading end
+    app.listen(port, () => {
+      console.log(`Backend server started on *:${port}`);
+      console.log('Starting BDS process...');
+      console.log();
 
-const app = express();
-app.use(express.json());
-app.use('/file', fileApiRouter);
-app.use('/config', configRouter);
-app.use('/data', dataRouter);
-app.use('/command', commandRouter);
-app.use('/log', logRouter);
-
-portFinder.getPort((err, port) => {
-  if (err) {
-    console.error(err);
-    process.exit(1);
-  }
-
-  fs.writeFileSync(path.join('config', 'default', 'variables.json'), JSON.stringify({
-    backendAddress: `http://localhost:${port}`
-  }));
-
-  app.listen(port, () => {
-    console.log(`Backend server started on *:${port}`);
-    console.log('Starting BDS process...');
-    console.log();
-
-    const bdsProcess = $initialize(bdsCommand);
-    bdsProcess.on('close', (code) => {
-      console.log('\x1b[0m');
-      console.log('BDS process exited with code', code ?? 0);
-      process.exit(code);
+      const bdsProcess = $initialize(bdsCommand);
+      bdsProcess.on('close', (code) => {
+        console.log('\x1b[0m');
+        console.log('BDS process exited with code', code ?? 0);
+        process.exit(code);
+      });
     });
   });
-});
+}
+
+main();
