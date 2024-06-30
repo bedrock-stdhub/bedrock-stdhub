@@ -7,12 +7,13 @@ import os from 'node:os';
 import fileApiRouter from '@/api/file';
 import configRouter from '@/api/config';
 import dataRouter from '@/api/data';
+import commandRouter from '@/api/command';
+import logRouter from '@/api/log';
 import PropertiesReader from 'properties-reader';
 import JSZip from 'jszip';
 import commandLineArgs from 'command-line-args';
 import portFinder from 'portfinder';
 import { $initialize } from '@/terminal';
-import commandRouter from '@/api/command';
 
 // check for platform
 let bdsCommand: string = '';
@@ -165,6 +166,7 @@ app.use('/file', fileApiRouter);
 app.use('/config', configRouter);
 app.use('/data', dataRouter);
 app.use('/command', commandRouter);
+app.use('/log', logRouter);
 
 portFinder.getPort((err, port) => {
   if (err) {
