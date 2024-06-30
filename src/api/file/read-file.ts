@@ -14,7 +14,7 @@ const schema = {
   additionalProperties: false,
 } as const satisfies JSONSchema;
 
-const readFileAction: Action = {
+const readFileAction = {
   schema,
   handler: (params: FromSchema<typeof schema>) => {
     const absolutePath = path.resolve(params.path);
@@ -33,6 +33,6 @@ const readFileAction: Action = {
       };
     }
   }
-};
+} satisfies Action;
 
 export default readFileAction;

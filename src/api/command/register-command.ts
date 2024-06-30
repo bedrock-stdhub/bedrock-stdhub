@@ -12,7 +12,7 @@ const schema = {
   additionalProperties: false,
 } as const satisfies JSONSchema;
 
-const registerCommandAction: Action = {
+const registerCommandAction = {
   schema,
   handler: (params: FromSchema<typeof schema>) => {
     const success = registerCommand(params.namespace, params.commandName);
@@ -22,6 +22,6 @@ const registerCommandAction: Action = {
       return {};
     }
   }
-};
+} satisfies Action;
 
 export default registerCommandAction;

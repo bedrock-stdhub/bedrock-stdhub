@@ -18,7 +18,7 @@ const schema = {
   additionalProperties: false,
 } as const satisfies JSONSchema;
 
-const readConfigAction: Action = {
+const readConfigAction =  {
   schema,
   handler: (params: FromSchema<typeof schema>) => {
     const pluginRoot = path.join(pluginsRoot, params.namespace);
@@ -37,6 +37,6 @@ const readConfigAction: Action = {
       return { data: deepMerge(params.defaults, readObj) };
     }
   }
-};
+} satisfies Action;
 
 export default readConfigAction;

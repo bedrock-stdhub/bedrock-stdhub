@@ -19,7 +19,7 @@ const schema = {
 
 // First read, then write.
 // If write first, server will return a 502.
-const writeConfigAction: Action = {
+const writeConfigAction = {
   schema,
   handler: (params: FromSchema<typeof schema>) => {
     fsExtra.ensureDirSync(path.resolve(pluginsRoot, params.namespace));
@@ -31,6 +31,6 @@ const writeConfigAction: Action = {
     fs.writeFileSync(configFilePath, YAML.stringify(params.config));
     return {};
   }
-};
+} satisfies Action;
 
 export default writeConfigAction;

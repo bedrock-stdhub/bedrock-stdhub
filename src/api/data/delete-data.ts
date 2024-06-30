@@ -16,7 +16,7 @@ const schema = {
 
 // First read, then write.
 // If write first, server will return a 502.
-const deleteDataAction: Action = {
+const deleteDataAction = {
   schema,
   handler: (params: FromSchema<typeof schema>) => {
     const dataFilePath = path.resolve(pluginsRoot, params.namespace, 'data', params.subDataPath);
@@ -31,6 +31,6 @@ const deleteDataAction: Action = {
       return {};
     }
   }
-};
+} satisfies Action;
 
 export default deleteDataAction;

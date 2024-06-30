@@ -15,7 +15,7 @@ const schema = {
   additionalProperties: false,
 } as const satisfies JSONSchema;
 
-const submitCommandAction: Action = {
+const submitCommandAction = {
   schema,
   handler: (params: FromSchema<typeof schema>) => {
     console.log(`Player ${params.playerName} tries to call plugin command ${params.commandString}`);
@@ -31,6 +31,6 @@ const submitCommandAction: Action = {
       return {};
     }
   }
-};
+} satisfies Action;
 
 export default submitCommandAction;

@@ -16,7 +16,7 @@ const schema = {
   additionalProperties: false,
 } as const satisfies JSONSchema;
 
-const writeDataAction: Action = {
+const writeDataAction = {
   schema,
   handler: (params: FromSchema<typeof schema>) => {
     const dataFilePath = path.resolve(pluginsRoot, params.namespace, 'data', params.subDataPath);
@@ -29,6 +29,6 @@ const writeDataAction: Action = {
     fs.writeFileSync(dataFilePath, JSON.stringify(params.data));
     return {};
   }
-};
+} satisfies Action;
 
 export default writeDataAction;

@@ -15,7 +15,7 @@ const schema = {
   additionalProperties: false,
 } as const satisfies JSONSchema;
 
-const readDataAction: Action = {
+const readDataAction = {
   schema,
   handler: (params: FromSchema<typeof schema>) => {
     const dataRoot = path.join(pluginsRoot, params.namespace, 'data');
@@ -32,6 +32,6 @@ const readDataAction: Action = {
       return { data: JSON.parse(fs.readFileSync(dataFilePath).toString()) };
     }
   }
-};
+} satisfies Action;
 
 export default readDataAction;
