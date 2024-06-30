@@ -10,10 +10,10 @@ import dataRouter from '@/api/data';
 import commandRouter from '@/api/command';
 import logRouter from '@/api/log';
 import PropertiesReader from 'properties-reader';
-import JSZip from 'jszip';
 import commandLineArgs from 'command-line-args';
 import portFinder from 'portfinder';
 import { $initialize } from '@/terminal';
+import loadPlugins from '@/load-plugin';
 
 // check for platform
 let bdsCommand: string = '';
@@ -38,11 +38,11 @@ if (!fs.existsSync('bedrock_server') && !fs.existsSync('bedrock_server.exe')) {
   process.exit(1);
 }
 
-const options = commandLineArgs([
+export const cmdLineOptions = commandLineArgs([
   { name: 'debug-mode', type: Boolean }
 ]);
 
-if (options['debug-mode']) {
+if (cmdLineOptions['debug-mode']) {
   console.log('====== ATTENTION ======');
   console.log('The application is running under DEBUG MODE.');
   console.log('It will listen to every existent file in `plugins` folder.');
@@ -68,7 +68,7 @@ if (!permissionsJson.allowed_modules.includes('@minecraft/server-net')) {
 }
 
 const serverProperties = PropertiesReader('server.properties');
-const levelRoot = path.join('worlds', serverProperties.get('level-name')!.toString());
+export const levelRoot = path.join('worlds', serverProperties.get('level-name')!.toString());
 
 /*
   const levelDatPath = path.join(levelRoot, 'level.dat');
@@ -93,71 +93,14 @@ const levelRoot = path.join('worlds', serverProperties.get('level-name')!.toStri
 // Initialization end
 
 // Plugin loading start
-async function extractMCAddon(pluginName: string, addon: JSZip) {
-  const behaviorPack = await JSZip.loadAsync(addon.file(`${pluginName}_bp.mcpack`)!.async('nodebuffer'));
-  const resourcePack = await JSZip.loadAsync(addon.file(`${pluginName}_rp.mcpack`)!.async('nodebuffer'));
 
-  const bpRoot = path.join(levelRoot, 'behavior_packs', pluginName);
-  const rpRoot = path.join(levelRoot, 'resource_packs', pluginName);
-  await extractAll(behaviorPack, bpRoot);
-  await extractAll(resourcePack, rpRoot);
-}
-
-async function extractAll(zip: JSZip, toPath: string) {
-  for (const filename of Object.keys(zip.files)) {
-    const file = zip.files[filename];
-    const outputPath = path.join(toPath, filename);
-    if (file.dir) {
-      fsExtra.ensureDirSync(outputPath);
-    } else {
-      const content = await file.async('nodebuffer');
-      fsExtra.ensureDirSync(path.dirname(outputPath));
-      fs.writeFileSync(outputPath, content);
-    }
-  }
-}
 
 fsExtra.removeSync(path.join(levelRoot, 'behavior_packs'));
 fsExtra.removeSync(path.join(levelRoot, 'resource_packs'));
 console.log('Removed old `behavior_packs` and `resource_packs`.');
 
-fsExtra.ensureDirSync(path.join(levelRoot, 'behavior_packs'));
-fsExtra.ensureDirSync(path.join(levelRoot, 'resource_packs'));
+await loadPlugins();
 
-const plugins = fs.readdirSync(pluginsRoot).filter(fileName => fileName.endsWith('.mcaddon'));
-const worldBehaviorPacks: { pack_id: string, version: number[] }[] = [];
-const worldResourcePacks: { pack_id: string, version: number[] }[] = [];
-for (const pluginFileName of plugins) {
-  const pluginName = pluginFileName.substring(0, pluginFileName.length - 8);
-  const addon = await JSZip.loadAsync(fs.readFileSync(path.join(pluginsRoot, pluginFileName)));
-  await extractMCAddon(pluginName, addon);
-  const bpManifest = JSON.parse(fs.readFileSync(
-    path.join(levelRoot, 'behavior_packs', pluginName, 'manifest.json')).toString());
-  const rpManifest = JSON.parse(fs.readFileSync(
-    path.join(levelRoot, 'behavior_packs', pluginName, 'manifest.json')).toString());
-  worldBehaviorPacks.push({ pack_id: bpManifest.header.uuid, version: bpManifest.header.version });
-  worldResourcePacks.push({ pack_id: rpManifest.header.uuid, version: rpManifest.header.version });
-
-  if (options['debug-mode']) {
-    fs.watchFile(path.join(pluginsRoot, pluginFileName), async () => {
-      const addon = await JSZip.loadAsync(fs.readFileSync(path.join(pluginsRoot, pluginFileName)));
-      await extractMCAddon(pluginName, addon);
-      console.log(`Plugin ${pluginFileName} changed. Please execute \`/reload\` to see changes.`);
-    });
-  }
-
-  console.log(`Loaded plugin \`${pluginFileName}\`.`);
-}
-
-fs.writeFileSync(
-  path.join(levelRoot, 'world_behavior_packs.json'),
-  JSON.stringify(worldBehaviorPacks, null, 2)
-);
-fs.writeFileSync(
-  path.join(levelRoot, 'world_resource_packs.json'),
-  JSON.stringify(worldResourcePacks, null, 2)
-);
-console.log(`Successfully created \`${levelRoot}${path.sep}world_*_json\`s.`);
 // Plugin loading end
 
 const app = express();
