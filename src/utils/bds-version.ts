@@ -57,10 +57,12 @@ export async function fetchVersions(packageName: string) {
   });
 }
 
-export async function getMinecraftServerApiVersionMapping(useCache?: boolean) {
+export async function getMinecraftServerApiVersionMapping(useCache: boolean = true) {
   let versionMapping;
   const cachePath = path.join('cache', 'serverApiVersions.json');
   if (!fs.existsSync(cachePath) || !useCache) {
+    console.log('Cache disabled or not found. Fetching fresh information...');
+
     fsExtra.ensureFileSync(cachePath);
     const rawVersionList = await fetchVersions('@minecraft/server');
     versionMapping = rawVersionList.filter(version => versionExp.test(version))
