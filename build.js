@@ -1,6 +1,7 @@
 import esbuild from 'esbuild';
 import pkg from 'pkg';
 import path from 'node:path';
+import fs from 'node:fs';
 
 const outputPath = 'dist';
 const esbuildOutput = path.join(outputPath, 'bedrock-stdhub.js');
@@ -26,6 +27,16 @@ async function toSingleExecutable() {
   ]);
 }
 
+async function copyBuiltJs() {
+  const dest = process.env.debugCopyDest;
+  if (!dest) {
+    console.log('No destination is specified.');
+    process.exit(1);
+  }
+  console.log(`Copying built JS to destination ${dest}...`);
+  fs.copyFileSync(esbuildOutput, dest);
+}
+
 const task = process.argv[2];
 switch (task) {
   case 'build:js': {
@@ -35,6 +46,11 @@ switch (task) {
   case 'build': {
     bundleJs()
       .then(() => toSingleExecutable());
+    break;
+  }
+  case 'debug': {
+    bundleJs()
+      .then(() => copyBuiltJs());
     break;
   }
   default: {

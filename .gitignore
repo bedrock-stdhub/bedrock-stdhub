@@ -6,3 +6,5 @@ out
 dist
 
 yarn.lock
+
+.env
