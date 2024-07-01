@@ -5,7 +5,7 @@ import { ScriptEvent } from '@/event/ScriptEvent';
 import readConfigAction from '@/api/config/read-config';
 import { $clearRegistry, processConsoleCommand } from '@/command';
 import os from 'node:os';
-import log, { logBDS } from '@/log';
+import { $log, $logBDS } from '@/log';
 
 let bdsProcess: ChildProcessWithoutNullStreams| null = null;
 
@@ -34,10 +34,10 @@ export function $initialize(bdsCommand: string) {
       const matchResultOrNull = line.match(bdsLogRegex);
       if (!matchResultOrNull) {
         // log as raw
-        log('bds', line);
+        $log('bds', line);
       } else {
         const [ , timeString, level, content ] = matchResultOrNull;
-        logBDS(timeString, level, content);
+        $logBDS(timeString, level, content);
       }
     }
   });

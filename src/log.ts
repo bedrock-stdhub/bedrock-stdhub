@@ -52,6 +52,6 @@ export function logSelf(content: string) {
   log('stdhub', content);
 }
 
-export function logBDS(timeString: string, level: string, content: string) {
-  log('bds', `${level}: ${content}`, timeString);
+export function $logBDS(timeString: string, level: string, content: string) {
+  $log('bds', `${level}: ${content}`, timeString);
 }
