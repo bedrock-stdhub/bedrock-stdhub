@@ -6,6 +6,7 @@ import readConfigAction from '@/api/config/read-config';
 import { triggerCommand } from '@/api/command/submit-command';
 import { logAction } from '@/api/log';
 import { $clearRegistry } from '@/command';
+import os from 'node:os';
 
 let bdsProcess: ChildProcessWithoutNullStreams| null = null;
 
@@ -36,7 +37,7 @@ export function $initialize(bdsCommand: string) {
       const dataString = data.toString();
       const commandString = dataString.slice(
         customCommandPrefix.length,
-        dataString.length - 2
+        dataString.length - os.EOL.length
       );
       const commandName = commandString.split(' ', 1)[0];
       const triggerResult = triggerCommand(commandString);
@@ -49,7 +50,7 @@ export function $initialize(bdsCommand: string) {
       return;
     }
 
-    if (data.toString() === 'reload\r\n') {
+    if (data.toString() === `reload${os.EOL}`) {
       $clearRegistry();
     }
     $accessInstance().stdin.write(data);
