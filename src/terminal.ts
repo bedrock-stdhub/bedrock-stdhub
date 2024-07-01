@@ -5,6 +5,7 @@ import { ScriptEvent } from '@/event/ScriptEvent';
 import readConfigAction from '@/api/config/read-config';
 import { $clearRegistry, processConsoleCommand } from '@/command';
 import os from 'node:os';
+import log, { $logBDS } from '@/log';
 
 let bdsProcess: ChildProcessWithoutNullStreams| null = null;
 
@@ -16,6 +17,8 @@ function $accessInstance() {
   }
 }
 
+const bdsLogRegex = /^\[(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}:\d{3}) (\w+)] (.*)$/;
+
 export function $initialize(bdsCommand: string) {
   bdsProcess = spawn(bdsCommand, { stdio: 'pipe' });
 
@@ -25,11 +28,29 @@ export function $initialize(bdsCommand: string) {
   }).data!.commandPrefix as string;
 
   bdsProcess.stdout.on('data', (data) => {
-    process.stdout.write(data);
+    const lines = (<string>data.toString()).split(/\r*\n/); // the last element must be ''
+    for (let i = 0; i < lines.length - 1; i++) {
+      const line = lines[i];
+      if (line === '') {
+        console.log();
+      } else {
+        const matchResultOrNull = line.match(bdsLogRegex);
+        if (!matchResultOrNull) {
+          // log as raw
+          log('bds', line);
+        } else {
+          const [ , timeString, level, content ] = matchResultOrNull;
+          $logBDS(timeString, level, content);
+        }
+      }
+    }
   });
-  bdsProcess.stderr.on('data', (data) => {
-    process.stderr.write(data);
-  });
+  /*
+   * Seems that they do not use stderr for error output
+    bdsProcess.stderr.on('data', (data) => {
+      process.stderr.write(data);
+    });
+   */
   process.stdin.on('data', (data) => {
     if (data.toString().startsWith(customCommandPrefix)) {
       const dataString = data.toString();
