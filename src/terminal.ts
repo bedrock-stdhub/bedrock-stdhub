@@ -4,9 +4,9 @@ import process from 'node:process';
 import { ScriptEvent } from '@/event/ScriptEvent';
 import readConfigAction from '@/api/config/read-config';
 import { triggerCommand } from '@/api/command/submit-command';
-import { logAction } from '@/api/log';
 import { $clearRegistry } from '@/command';
 import os from 'node:os';
+import { $log } from '@/log';
 
 let bdsProcess: ChildProcessWithoutNullStreams| null = null;
 
@@ -42,10 +42,7 @@ export function $initialize(bdsCommand: string) {
       const commandName = commandString.split(' ', 1)[0];
       const triggerResult = triggerCommand(commandString);
       if (triggerResult.status === 404) {
-        logAction.handler({
-          namespace: 'stdhub',
-          content: `§cUnknown command: ${commandName}. Please check that the command exists and you have permission to use it.`
-        });
+        $log(`§cUnknown command: ${commandName}. Please check that the command exists and you have permission to use it.`);
       }
       return;
     }

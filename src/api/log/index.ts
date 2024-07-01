@@ -1,7 +1,8 @@
 import express from 'express';
 import { FromSchema, JSONSchema } from 'json-schema-to-ts';
 import registerAction, { Action } from '@/utils/action';
-import replaceMinecraftColors from '@/utils/replace-minecraft-colors';
+
+import log from '@/log';
 
 const router = express.Router();
 
@@ -18,7 +19,7 @@ const schema = {
 export const logAction = {
   schema,
   handler: (params: FromSchema<typeof schema>) => {
-    console.log(`[${params.namespace}] ${replaceMinecraftColors(params.content)}`);
+    log(params.namespace, params.content);
     return {};
   }
 } satisfies Action;

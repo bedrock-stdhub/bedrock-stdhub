@@ -18,6 +18,14 @@ const colorMap = new Map([
   [ '§r', '\x1b[0m'  ], // return plain text
 ]);
 
-export default function replaceMinecraftColors(input: string) {
+export function replaceMinecraftColors(input: string) {
   return input.replace(/§[0-9a-fr]/g, match => colorMap.get(match)!) + '\x1b[0m';
+}
+
+export default function log(namespace: string, content: string) {
+  console.log(`[${namespace}] ${replaceMinecraftColors(content)}`);
+}
+
+export function $log(content: string) {
+  log('stdhub', content);
 }
