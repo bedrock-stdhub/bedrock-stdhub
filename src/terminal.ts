@@ -38,11 +38,12 @@ export function $initialize(bdsCommand: string) {
         customCommandPrefix.length,
         dataString.length - 2
       );
+      const commandName = commandString.split(' ', 1)[0];
       const triggerResult = triggerCommand(commandString);
       if (triggerResult.status === 404) {
         logAction.handler({
           namespace: 'stdhub',
-          content: '§cUnknown command: ${commandName}. Please check that the command exists and you have permission to use it.'
+          content: `§cUnknown command: ${commandName}. Please check that the command exists and you have permission to use it.`
         });
       }
       return;
