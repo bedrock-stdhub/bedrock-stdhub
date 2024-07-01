@@ -1,7 +1,7 @@
 import fs from 'fs';
-import { exec } from 'child_process';
 import path from 'node:path';
 import fsExtra from 'fs-extra';
+import axios from 'axios';
 
 type Version = number[];
 
@@ -46,15 +46,9 @@ const versionExp = /^(\d+\.\d+\.\d+-beta\.\d+\.\d+\.\d+)-stable$/;
 const reducedVersionExp = /^(\d+\.\d+\.\d+-beta)\.(\d+\.\d+\.\d+)$/;
 
 export async function fetchVersions(packageName: string) {
-  return new Promise<string[]>((resolve, reject) => {
-    exec(`npm view ${packageName} versions --json`, (err, stdout) => {
-      if (err) {
-        reject(err);
-      } else {
-        resolve(<string[]>JSON.parse(stdout));
-      }
-    });
-  });
+  return axios.get(`https://registry.npmjs.org/${packageName}`)
+  .then(resp => resp.data)
+  .then(data => Object.keys(data.versions));
 }
 
 export async function getMinecraftServerApiVersionMapping(useCache: boolean = true) {
