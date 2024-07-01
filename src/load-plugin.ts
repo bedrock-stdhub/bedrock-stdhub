@@ -102,8 +102,6 @@ export default async function loadPlugins() {
       throw 'Version not supported';
     }
   }
-  const { versionMapping } = fetched;
-  const latest = versionMapping[0].releaseVersion;
 
   let loadedPluginNumber = 0;
 
@@ -124,8 +122,7 @@ export default async function loadPlugins() {
       const pluginUUID = randomUUID();
       const scriptModuleUUID = randomUUID();
 
-      const targetMinecraftVersion = pluginMeta.targetMinecraftVersion === 'latest' ?
-        latest : pluginMeta.targetMinecraftVersion;
+      const targetMinecraftVersion = pluginMeta.targetMinecraftVersion;
 
       if (targetMinecraftVersion !== currentBDSVersion) {
         console.log(`The Minecraft version requirement of plugin ${pluginMeta.plugin.name} (${targetMinecraftVersion}) does not match current version ${currentBDSVersion}.`);
