@@ -94,9 +94,10 @@ if (!permissionsJson.allowed_modules.includes('@minecraft/server-net')) {
 // Initialization end
 
 async function main(){
-  fsExtra.removeSync(path.join(levelRoot, 'behavior_packs'));
-  fsExtra.removeSync(path.join(levelRoot, 'resource_packs'));
-  console.log('Removed old `behavior_packs` and `resource_packs`.');
+  fs.readdirSync(path.join(levelRoot, 'behavior_packs'))
+  .filter(folder => folder.startsWith('__stdhub_plugins'))
+  .forEach(folderToDelete => fsExtra.removeSync(path.join(levelRoot, 'behavior_packs', folderToDelete)));
+  console.log('Removed old plugins.');
   await loadPlugins();
 
   const app = express();
