@@ -37,13 +37,21 @@ export function replaceMinecraftColors(input: string) {
 }
 
 export default function log(namespace: string, content: string, timeString?: string) {
+  if (content.includes('\n')) {
+    content.split(/\r*\n/).forEach(line => $log(namespace, line, timeString));
+  } else {
+    $log(namespace, content, timeString);
+  }
+}
+
+export function $log(namespace: string, content: string, timeString?: string) {
   console.log(`[${timeString || formatDate(new Date())}] [${namespace}] ${replaceMinecraftColors(content)}`);
 }
 
-export function $log(content: string) {
+export function logSelf(content: string) {
   log('stdhub', content);
 }
 
-export function $logBDS(timeString: string, level: string, content: string) {
+export function logBDS(timeString: string, level: string, content: string) {
   log('bds', `${level}: ${content}`, timeString);
 }

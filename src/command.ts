@@ -1,5 +1,5 @@
 import { triggerCommand } from '@/api/command/submit-command';
-import { $log } from '@/log';
+import { logSelf } from '@/log';
 
 const commands: Set<string> = new Set();
 const defaultCommandNames: Map<string, string> = new Map();
@@ -50,7 +50,7 @@ export function processConsoleCommand(commandString: string) {
   const commandName = commandString.split(' ', 1)[0];
   const triggerResult = triggerCommand(commandString);
   if (triggerResult.status === 404) {
-    $log(`§cUnknown command: ${commandName}. Please check that the command exists and you have permission to use it.`);
+    logSelf(`§cUnknown command: ${commandName}. Please check that the command exists and you have permission to use it.`);
   }
 }
 
