@@ -37,16 +37,17 @@ import { getCurrentBDSVersion, getMinecraftServerApiVersionMapping } from '@/uti
 const entryScriptName = 'main.js';
 
 export default async function loadPlugins() {
-  fsExtra.ensureDirSync(path.join(levelRoot, 'behavior_packs'));
-  fsExtra.ensureDirSync(path.join(levelRoot, 'resource_packs'));
-
   const allPlugins = fs.readdirSync(pluginsRoot);
 
   const originalWorldBehaviorPacksFilePath = path.join(levelRoot, 'world_behavior_packs.json.original');
   const worldBehaviorPacksFilePath = path.join(levelRoot, 'world_behavior_packs.json');
 
   if (!fs.existsSync(originalWorldBehaviorPacksFilePath)) {
-    fs.copyFileSync(worldBehaviorPacksFilePath, originalWorldBehaviorPacksFilePath);
+    if (!fs.existsSync(worldBehaviorPacksFilePath)) {
+      fs.writeFileSync(originalWorldBehaviorPacksFilePath, '[]');
+    } else {
+      fs.copyFileSync(worldBehaviorPacksFilePath, originalWorldBehaviorPacksFilePath);
+    }
   }
 
   const worldBehaviorPacks = JSON.parse(
