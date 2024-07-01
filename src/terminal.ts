@@ -3,10 +3,8 @@ import { spawn } from 'node:child_process';
 import process from 'node:process';
 import { ScriptEvent } from '@/event/ScriptEvent';
 import readConfigAction from '@/api/config/read-config';
-import { triggerCommand } from '@/api/command/submit-command';
-import { $clearRegistry } from '@/command';
+import { $clearRegistry, processConsoleCommand } from '@/command';
 import os from 'node:os';
-import { $log } from '@/log';
 
 let bdsProcess: ChildProcessWithoutNullStreams| null = null;
 
@@ -39,11 +37,7 @@ export function $initialize(bdsCommand: string) {
         customCommandPrefix.length,
         dataString.length - os.EOL.length
       );
-      const commandName = commandString.split(' ', 1)[0];
-      const triggerResult = triggerCommand(commandString);
-      if (triggerResult.status === 404) {
-        $log(`§cUnknown command: ${commandName}. Please check that the command exists and you have permission to use it.`);
-      }
+      processConsoleCommand(commandString);
       return;
     }
 
