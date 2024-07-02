@@ -1,8 +1,8 @@
-# bedrock-stdhub
+# Bedrock StdHub
 
 English | [简体中文](README.zh.md)
 
-A completely external 'hub' to load plugins with _unmodified_ Bedrock Dedicated Server.
+Plugin loader for *unmodified* Bedrock Dedicated Server.
 
 The word 'stdhub' is a combination of 'stdlib' and 'hub'. This application acts as a 'hub' to load plugins in form of behavior packs and provides plugins with a set of so-called 'standard libraries' for Server-side behavior packs to break out of the 'sandbox' of Scripting environment.
 
