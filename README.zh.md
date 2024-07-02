@@ -1,4 +1,4 @@
-# bedrock-stdhub
+# Bedrock StdHub
 
 [English](README.md) | 简体中文
 
