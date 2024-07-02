@@ -6,6 +6,7 @@ import fsExtra from 'fs-extra';
 import { randomUUID } from 'node:crypto';
 import YAML from 'yaml';
 import { getCurrentBDSVersion, getMinecraftServerApiVersionMapping } from '@/utils/bds-version';
+import { logSelf } from '@/log';
 
 /*
  * Logic of loading legacy plugins (.mcaddon)
@@ -84,8 +85,8 @@ export default async function loadPlugins() {
   const plugins = allPlugins.filter(fileName => fileName.endsWith('.stdplugin'));
 
   const currentBDSVersion = getCurrentBDSVersion();
-  console.log(`Your current BDS version is: ${currentBDSVersion}`);
-  console.log('If this does not match, please report an issue.');
+  logSelf(`Your current BDS version is: ${currentBDSVersion}`);
+  logSelf('If this does not match, please report an issue.');
 
   const currentBDSVersionArray = currentBDSVersion.split('.').map(i => parseInt(i));
   let fetched = await getMinecraftServerApiVersionMapping();
@@ -98,8 +99,8 @@ export default async function loadPlugins() {
     apiVersion = fetched.versionMapping.find(({ releaseVersion }) =>
       releaseVersion === currentBDSVersion)?.apiVersion;
     if (!apiVersion) {
-      console.log('Seems that you are using a newer release of BDS, which is not listed in npm registry.');
-      console.log('Check if you are using a preview version, or wait a moment.');
+      logSelf('Seems that you are using a newer release of BDS, which is not listed in npm registry.');
+      logSelf('Check if you are using a preview version, or wait a moment.');
       throw 'Version not supported';
     }
   }
@@ -126,8 +127,8 @@ export default async function loadPlugins() {
       const targetMinecraftVersion = pluginMeta.targetMinecraftVersion;
 
       if (targetMinecraftVersion !== currentBDSVersion) {
-        console.log(`The Minecraft version requirement of plugin ${pluginMeta.plugin.name} (${targetMinecraftVersion}) does not match current version ${currentBDSVersion}.`);
-        console.log('We will still enable this plugin. But when it does not function as expected, do not report any issue.');
+        logSelf(`§eThe Minecraft version requirement of plugin ${pluginMeta.plugin.name} (§c${targetMinecraftVersion}§e) does not match current version §a${currentBDSVersion}§e.`);
+        logSelf('§eWe will still enable this plugin. But when it does not function as expected, do not report any issue.');
       }
 
       const tempPluginName = `__stdhub_plugins_${pluginUUID}`;
@@ -179,13 +180,12 @@ export default async function loadPlugins() {
 
       if (cmdLineOptions['debug-mode']) {
         fs.watchFile(path.join(pluginsRoot, pluginFileName), async () => {
-          console.log('Triggered');
           const plugin = await JSZip.loadAsync(fs.readFileSync(path.join('plugins', pluginFileName)));
           fs.writeFileSync(
             path.join(pluginScriptRoot, entryScriptName),
             await plugin.file('script.js')!.async('nodebuffer'),
           );
-          console.log(`Plugin ${pluginFileName} changed. Please execute \`reload\` AT THE TERMINAL to see changes.`);
+          logSelf(`§ePlugin §a${pluginFileName}§e changed. Please execute \`§areload§e\` AT THE TERMINAL to see changes.`);
         });
       }
 
@@ -202,5 +202,5 @@ export default async function loadPlugins() {
 
   // fs.writeFileSync(path.join(levelRoot, 'world_resource_packs.json'),JSON.stringify(worldResourcePacks));
 
-  console.log(`Successfully loaded ${loadedPluginNumber} plugins.`);
+  logSelf(`§aSuccessfully loaded ${loadedPluginNumber} plugin(s).`);
 }

@@ -14,6 +14,7 @@ import commandLineArgs from 'command-line-args';
 import portFinder from 'portfinder';
 import { $initialize } from '@/terminal';
 import loadPlugins from '@/load-plugin';
+import { logSelf } from '@/log';
 
 export const cmdLineOptions = commandLineArgs([
   { name: 'debug-mode', type: Boolean }
@@ -36,25 +37,26 @@ switch (os.platform()) {
     break;
   }
   default: {
-    console.log(`The current platform ${os.platform()} is not supported.`);
+    logSelf(`§cThe current platform ${os.platform()} is not supported.`);
     process.exit(1);
   }
 }
 
 // check for bedrock_server binaries
 if (!fs.existsSync('bedrock_server') && !fs.existsSync('bedrock_server.exe')) {
-  console.log('BDS binary file not found. Please check your installation.');
+  logSelf('§cBDS binary file not found. Please check your installation.');
   process.exit(1);
 }
 
 if (cmdLineOptions['debug-mode']) {
-  console.log('====== ATTENTION ======');
-  console.log('The application is running under DEBUG MODE.');
-  console.log('It will listen to every existent file in `plugins` folder.');
-  console.log('When any file changes, it will copy new plugin files to the world folder and delete the old.');
-  console.log('However, it won\'t listen to newly added files, nor will it copy it to the world folder.');
-  console.log('So if you want to have a test on new plugins, please restart the application.');
-  console.log();
+  logSelf([
+    '============ ATTENTION ============',
+    'The application is running under §eDEBUG MODE§r.',
+    'It will listen to every existent file in `plugins` folder.',
+    'When any file changes, it will copy new plugin files to the world folder and delete the old.',
+    'However, it won\'t listen to newly added files, nor will it copy it to the world folder.',
+    'So if you want to have a test on new plugins, please restart the application.'
+  ].join('\n'));
 }
 
 // Initialization begin
@@ -68,7 +70,7 @@ if (!permissionsJson.allowed_modules.includes('@minecraft/server-net')) {
   permissionsJson.allowed_modules.push('@minecraft/server-net');
   fs.copyFileSync(permissionsJsonPath, `${permissionsJsonPath}.bak`);
   fs.writeFileSync(permissionsJsonPath, JSON.stringify(permissionsJson, null, 2));
-  console.log(`Successfully patched \`${permissionsJsonPath}\`.`);
+  logSelf(`§aSuccessfully patched \`§e${permissionsJsonPath}§a\`.`);
 }
 
 /*
@@ -99,7 +101,7 @@ async function main(){
   fs.readdirSync(path.join(levelRoot, 'behavior_packs'))
   .filter(folder => folder.startsWith('__stdhub_plugins'))
   .forEach(folderToDelete => fsExtra.removeSync(path.join(levelRoot, 'behavior_packs', folderToDelete)));
-  console.log('Removed old plugins.');
+  logSelf('§aRemoved old plugins.');
   await loadPlugins();
 
   const app = express();
@@ -121,14 +123,13 @@ async function main(){
     }));
 
     app.listen(port, () => {
-      console.log(`Backend server started on *:${port}`);
-      console.log('Starting BDS process...');
-      console.log();
+      logSelf(`Backend server started on *:${port}`);
+      logSelf('Starting BDS process...');
+      logSelf('');
 
       const bdsProcess = $initialize(bdsCommand);
       bdsProcess.on('close', (code) => {
-        console.log('\x1b[0m');
-        console.log('BDS process exited with code', code ?? 0);
+        logSelf(`BDS process exited with code ${code ?? 0}`);
         process.exit(code);
       });
     });

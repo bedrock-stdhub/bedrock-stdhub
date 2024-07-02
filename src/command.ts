@@ -13,8 +13,8 @@ export function registerCommand(namespace: string, commandName: string): boolean
   if (!presentCommandOrNull) {
     defaultCommandNames.set(commandName, cmdNameWithNs);
   } else {
-    console.log(`Command naming conflict: '${presentCommandOrNull}' & '${cmdNameWithNs}'.`);
-    console.log(`Consider removing one of the plugins, or call the latter with prefix '${namespace}:'.`);
+    logSelf(`Command naming conflict: '${presentCommandOrNull}' & '${cmdNameWithNs}'.`);
+    logSelf(`Consider removing one of the plugins, or call the latter with prefix '${namespace}:'.`);
   }
   commands.add(cmdNameWithNs);
   return true;
@@ -57,4 +57,5 @@ export function processConsoleCommand(commandString: string) {
 export function $clearRegistry() {
   commands.clear();
   defaultCommandNames.clear();
+  logSelf('Command registry cleared.');
 }

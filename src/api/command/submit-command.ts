@@ -3,6 +3,7 @@ import { Action } from '@/utils/action';
 import { resolveCommand } from '@/command';
 import { triggerScriptEvent } from '@/terminal';
 import { CommandDispatchEvent } from '@/event/command/CommandDispatchEvent';
+import { logSelf } from '@/log';
 
 const schema = {
   type: 'object',
@@ -31,7 +32,7 @@ export function triggerCommand(commandString: string, playerId?: string) {
 const submitCommandAction = {
   schema,
   handler: (params: FromSchema<typeof schema>) => {
-    console.log(`Player ${params.playerName} tries to call plugin command ${params.commandString}`);
+    logSelf(`Player ${params.playerName} tries to call plugin command ${params.commandString}`);
 
     return triggerCommand(params.commandString, params.playerId);
   }

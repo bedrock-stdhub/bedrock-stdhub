@@ -2,6 +2,7 @@ import fs from 'fs';
 import path from 'node:path';
 import fsExtra from 'fs-extra';
 import axios from 'axios';
+import { logSelf } from '@/log';
 
 type Version = number[];
 
@@ -55,7 +56,7 @@ export async function getMinecraftServerApiVersionMapping(useCache: boolean = tr
   let versionMapping;
   const cachePath = path.join('cache', 'serverApiVersions.json');
   if (!fs.existsSync(cachePath) || !useCache) {
-    console.log('Cache disabled or not found. Fetching fresh information...');
+    logSelf('§eCache disabled or not found. Fetching fresh information...');
 
     fsExtra.ensureFileSync(cachePath);
     const rawVersionList = await fetchVersions('@minecraft/server');
