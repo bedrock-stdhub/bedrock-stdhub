@@ -138,7 +138,7 @@ export default async function loadPlugins() {
       fs.writeFileSync(path.join(pluginRoot, 'manifest.json'), JSON.stringify({
         'format_version': 2,
         'header': {
-          'name': tempPluginName,
+          'name': pluginMeta.plugin.name,
           'description': pluginMeta.plugin.description,
           'uuid': pluginUUID,
           'version': pluginVersionArray,
