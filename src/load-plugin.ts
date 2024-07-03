@@ -4,7 +4,6 @@ import path from 'node:path';
 import { cmdLineOptions, levelRoot, pluginsRoot } from '@/index';
 import fsExtra from 'fs-extra';
 import { randomUUID } from 'node:crypto';
-import YAML from 'yaml';
 import { getCurrentBDSVersion, getMinecraftServerApiVersionMapping } from '@/utils/bds-version';
 import { logSelf } from '@/log';
 
@@ -110,8 +109,8 @@ export default async function loadPlugins() {
   for (const pluginFileName of plugins) {
     try {
       const plugin = await JSZip.loadAsync(fs.readFileSync(path.join('plugins', pluginFileName)));
-      const pluginMeta = YAML.parse(
-        await plugin.file('plugin.yaml')!.async('string'),
+      const pluginMeta = JSON.parse(
+        await plugin.file('plugin.json')!.async('string'),
       ) as {
         plugin: {
           name: string,
