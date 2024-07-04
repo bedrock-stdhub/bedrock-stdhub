@@ -4,6 +4,7 @@ import fsExtra from 'fs-extra';
 import path from 'node:path';
 import process from 'node:process';
 import os from 'node:os';
+import nbt, { Tags, TagType } from 'prismarine-nbt';
 import fileApiRouter from '@/api/file';
 import configRouter from '@/api/config';
 import dataRouter from '@/api/data';
@@ -51,12 +52,12 @@ async function main(){
 
   if (cmdLineOptions['debug-mode']) {
     logSelf([
-      '============ ATTENTION ============',
-      'The application is running under §eDEBUG MODE§r.',
-      'It will listen to every existent file in `plugins` folder.',
-      'When any file changes, it will copy new plugin files to the world folder and delete the old.',
-      'However, it won\'t listen to newly added files, nor will it copy it to the world folder.',
-      'So if you want to have a test on new plugins, please restart the application.'
+      '§e============ ATTENTION ============',
+      '§eThe application is running under DEBUG MODE§r.',
+      '§eIt will listen to every existent file in `plugins` folder.',
+      '§eWhen any file changes, it will copy new plugin files to the world folder and delete the old.',
+      '§eHowever, it won\'t listen to newly added files, nor will it copy it to the world folder.',
+      '§eSo if you want to have a test on new plugins, please restart the application.'
     ].join('\n'));
   }
 
@@ -74,25 +75,21 @@ async function main(){
     logSelf(`§aSuccessfully patched \`§e${permissionsJsonPath}§a\`.`);
   }
 
-  /*
-    const levelDatPath = path.join(levelRoot, 'level.dat');
-    fs.copyFileSync(levelDatPath, `${levelDatPath}_old`);
-    const { parsed: levelDat, type: levelDatType } = await nbt.parse(fs.readFileSync(levelDatPath));
-    console.log(1, levelDat.value['experiments']);
-    levelDat.value['experiments'] = nbt.comp({
-      experiments_ever_used: nbt.byte(1),
-      gametest: nbt.byte(1),
-      saved_with_toggled_experiments: nbt.byte(1),
-    });
-    console.log(2, levelDat.value['experiments']);
-    fs.writeFileSync(levelDatPath, nbt.writeUncompressed(levelDat, levelDatType));
-    console.log(3, (await nbt.parse(fs.readFileSync(levelDatPath))).parsed.value['experiments']);
-    console.log('Successfully patched `level.dat`.');
-   */
-  // A weird issue: `level.dat` is patched through this segment of code.
-  // However, when the BDS instance launches, the newly patched `level.dat` just returns to what it had been like.
-  // This issue only happens when I patch this file with such code.
-  // When I manually enable experimental APIs in Minecraft client, it just works.
+  const levelDatPath = path.join(levelRoot, 'level.dat');
+  const levelDatBackupPath = path.join(levelRoot, 'level.dat.bak');
+  const { parsed: levelDat, type: levelDatType } = await nbt.parse(fs.readFileSync(levelDatPath));
+  const experimentDataNode = <Tags[TagType.Compound]> levelDat.value['experiments'];
+  experimentDataNode.value['experiments_ever_used'] = nbt.byte(1);
+  experimentDataNode.value['gametest'] = nbt.byte(1);
+  experimentDataNode.value['saved_with_toggled_experiments'] = nbt.byte(1);
+  const patchedLevelDatBody = nbt.writeUncompressed(levelDat, levelDatType);
+  const patchedLevelDatBytes = Buffer.concat([
+    Buffer.from([ 0x08, 0x00, 0x00, 0x00, 0x2A, 0x0B, 0x00, 0x00 ]),
+    patchedLevelDatBody
+  ]);
+  fs.copyFileSync(levelDatPath, levelDatBackupPath);
+  fs.writeFileSync(levelDatPath, patchedLevelDatBytes);
+  logSelf('§aSuccessfully patched `§elevel.dat§a`.');
 
   // Initialization end
 
