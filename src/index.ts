@@ -50,6 +50,11 @@ async function main(){
     process.exit(1);
   }
 
+  if (!fs.existsSync(levelRoot)) {
+    logSelf('§cWorld folder not found. Please run bedrock_server first to generate a world.');
+    process.exit(1);
+  }
+
   if (cmdLineOptions['debug-mode']) {
     logSelf([
       '§e============ ATTENTION ============',
