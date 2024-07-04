@@ -1,5 +1,5 @@
 import { FromSchema, JSONSchema } from 'json-schema-to-ts';
-import { Action } from '@/utils/action';
+import { Action } from '@/api/Action';
 import path from 'node:path';
 import { pluginsRoot } from '@/index';
 import fs from 'fs';

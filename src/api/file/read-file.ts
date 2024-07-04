@@ -1,6 +1,6 @@
 import { FromSchema, JSONSchema } from 'json-schema-to-ts';
 import fs from 'fs';
-import { Action } from '@/utils/action';
+import { Action } from '@/api/Action';
 import path from 'node:path';
 import process from 'node:process';
 

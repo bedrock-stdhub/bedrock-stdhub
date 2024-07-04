@@ -1,5 +1,5 @@
 import express from 'express';
-import registerAction from '@/utils/action';
+import registerAction from '@/api/Action';
 import registerCommandAction from '@/api/command/register-command';
 import submitCommandAction from '@/api/command/submit-command';
 

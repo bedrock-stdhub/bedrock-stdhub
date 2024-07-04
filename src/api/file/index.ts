@@ -1,5 +1,5 @@
 import express from 'express';
-import registerAction from '@/utils/action';
+import registerAction from '@/api/Action';
 import readFileAction from './read-file';
 
 const router = express.Router();

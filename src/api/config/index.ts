@@ -1,5 +1,5 @@
 import express from 'express';
-import registerAction from '@/utils/action';
+import registerAction from '@/api/Action';
 import readConfigAction from './read-config';
 // import writeConfigAction from './write-config';
 

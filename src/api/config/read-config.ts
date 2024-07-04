@@ -1,6 +1,6 @@
 import deepMerge from '@/utils/merge-object';
 import { FromSchema, JSONSchema } from 'json-schema-to-ts';
-import { Action } from '@/utils/action';
+import { Action } from '@/api/Action';
 import fs from 'fs';
 import * as path from 'node:path';
 import { pluginsRoot } from '@/index';

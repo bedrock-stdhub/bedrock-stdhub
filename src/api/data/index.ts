@@ -1,5 +1,5 @@
 import express from 'express';
-import registerAction from '@/utils/action';
+import registerAction from '@/api/Action';
 import readDataAction from './read-data';
 import writeDataAction from './write-data';
 import deleteDataAction from './delete-data';
