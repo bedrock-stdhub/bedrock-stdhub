@@ -79,17 +79,19 @@ async function main(){
   const levelDatBackupPath = path.join(levelRoot, 'level.dat.bak');
   const { parsed: levelDat, type: levelDatType } = await nbt.parse(fs.readFileSync(levelDatPath));
   const experimentDataNode = <Tags[TagType.Compound]> levelDat.value['experiments'];
-  experimentDataNode.value['experiments_ever_used'] = nbt.byte(1);
-  experimentDataNode.value['gametest'] = nbt.byte(1);
-  experimentDataNode.value['saved_with_toggled_experiments'] = nbt.byte(1);
-  const patchedLevelDatBody = nbt.writeUncompressed(levelDat, levelDatType);
-  const patchedLevelDatBytes = Buffer.concat([
-    Buffer.from([ 0x08, 0x00, 0x00, 0x00, 0x2A, 0x0B, 0x00, 0x00 ]),
-    patchedLevelDatBody
-  ]);
-  fs.copyFileSync(levelDatPath, levelDatBackupPath);
-  fs.writeFileSync(levelDatPath, patchedLevelDatBytes);
-  logSelf('§aSuccessfully patched `§elevel.dat§a`.');
+  if (experimentDataNode.value['gametest']?.value !== 1) {
+    experimentDataNode.value['experiments_ever_used'] = nbt.byte(1);
+    experimentDataNode.value['gametest'] = nbt.byte(1);
+    experimentDataNode.value['saved_with_toggled_experiments'] = nbt.byte(1);
+    const patchedLevelDatBody = nbt.writeUncompressed(levelDat, levelDatType);
+    const patchedLevelDatBytes = Buffer.concat([
+      Buffer.from([ 0x08, 0x00, 0x00, 0x00, 0x2A, 0x0B, 0x00, 0x00 ]),
+      patchedLevelDatBody
+    ]);
+    fs.copyFileSync(levelDatPath, levelDatBackupPath);
+    fs.writeFileSync(levelDatPath, patchedLevelDatBytes);
+    logSelf('§aSuccessfully patched `§elevel.dat§a`.');
+  }
 
   // Initialization end
 
