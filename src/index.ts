@@ -25,77 +25,77 @@ export const pluginsRoot = path.resolve('plugins');
 const serverProperties = PropertiesReader('server.properties');
 export const levelRoot = path.join('worlds', serverProperties.get('level-name')!.toString());
 
-// check for platform
-let bdsCommand: string = '';
-switch (os.platform()) {
-  case 'win32': {
-    bdsCommand = '.\\bedrock_server.exe';
-    break;
+async function main(){
+  // check for platform
+  let bdsCommand: string = '';
+  switch (os.platform()) {
+    case 'win32': {
+      bdsCommand = '.\\bedrock_server.exe';
+      break;
+    }
+    case 'linux': {
+      bdsCommand = './bedrock_server';
+      break;
+    }
+    default: {
+      logSelf(`§cThe current platform ${os.platform()} is not supported.`);
+      process.exit(1);
+    }
   }
-  case 'linux': {
-    bdsCommand = './bedrock_server';
-    break;
-  }
-  default: {
-    logSelf(`§cThe current platform ${os.platform()} is not supported.`);
+
+  // check for bedrock_server binaries
+  if (!fs.existsSync('bedrock_server') && !fs.existsSync('bedrock_server.exe')) {
+    logSelf('§cBDS binary file not found. Please check your installation.');
     process.exit(1);
   }
-}
 
-// check for bedrock_server binaries
-if (!fs.existsSync('bedrock_server') && !fs.existsSync('bedrock_server.exe')) {
-  logSelf('§cBDS binary file not found. Please check your installation.');
-  process.exit(1);
-}
+  if (cmdLineOptions['debug-mode']) {
+    logSelf([
+      '============ ATTENTION ============',
+      'The application is running under §eDEBUG MODE§r.',
+      'It will listen to every existent file in `plugins` folder.',
+      'When any file changes, it will copy new plugin files to the world folder and delete the old.',
+      'However, it won\'t listen to newly added files, nor will it copy it to the world folder.',
+      'So if you want to have a test on new plugins, please restart the application.'
+    ].join('\n'));
+  }
 
-if (cmdLineOptions['debug-mode']) {
-  logSelf([
-    '============ ATTENTION ============',
-    'The application is running under §eDEBUG MODE§r.',
-    'It will listen to every existent file in `plugins` folder.',
-    'When any file changes, it will copy new plugin files to the world folder and delete the old.',
-    'However, it won\'t listen to newly added files, nor will it copy it to the world folder.',
-    'So if you want to have a test on new plugins, please restart the application.'
-  ].join('\n'));
-}
+  // Initialization begin
+  fsExtra.ensureDirSync(pluginsRoot);
 
-// Initialization begin
-fsExtra.ensureDirSync(pluginsRoot);
+  const permissionsJsonPath = path.join('config', 'default', 'permissions.json');
+  const permissionsJson = JSON.parse(
+    fs.readFileSync(permissionsJsonPath).toString()
+  ) as { allowed_modules: string[] };
+  if (!permissionsJson.allowed_modules.includes('@minecraft/server-net')) {
+    permissionsJson.allowed_modules.push('@minecraft/server-net');
+    fs.copyFileSync(permissionsJsonPath, `${permissionsJsonPath}.bak`);
+    fs.writeFileSync(permissionsJsonPath, JSON.stringify(permissionsJson, null, 2));
+    logSelf(`§aSuccessfully patched \`§e${permissionsJsonPath}§a\`.`);
+  }
 
-const permissionsJsonPath = path.join('config', 'default', 'permissions.json');
-const permissionsJson = JSON.parse(
-  fs.readFileSync(permissionsJsonPath).toString()
-) as { allowed_modules: string[] };
-if (!permissionsJson.allowed_modules.includes('@minecraft/server-net')) {
-  permissionsJson.allowed_modules.push('@minecraft/server-net');
-  fs.copyFileSync(permissionsJsonPath, `${permissionsJsonPath}.bak`);
-  fs.writeFileSync(permissionsJsonPath, JSON.stringify(permissionsJson, null, 2));
-  logSelf(`§aSuccessfully patched \`§e${permissionsJsonPath}§a\`.`);
-}
+  /*
+    const levelDatPath = path.join(levelRoot, 'level.dat');
+    fs.copyFileSync(levelDatPath, `${levelDatPath}_old`);
+    const { parsed: levelDat, type: levelDatType } = await nbt.parse(fs.readFileSync(levelDatPath));
+    console.log(1, levelDat.value['experiments']);
+    levelDat.value['experiments'] = nbt.comp({
+      experiments_ever_used: nbt.byte(1),
+      gametest: nbt.byte(1),
+      saved_with_toggled_experiments: nbt.byte(1),
+    });
+    console.log(2, levelDat.value['experiments']);
+    fs.writeFileSync(levelDatPath, nbt.writeUncompressed(levelDat, levelDatType));
+    console.log(3, (await nbt.parse(fs.readFileSync(levelDatPath))).parsed.value['experiments']);
+    console.log('Successfully patched `level.dat`.');
+   */
+  // A weird issue: `level.dat` is patched through this segment of code.
+  // However, when the BDS instance launches, the newly patched `level.dat` just returns to what it had been like.
+  // This issue only happens when I patch this file with such code.
+  // When I manually enable experimental APIs in Minecraft client, it just works.
 
-/*
-  const levelDatPath = path.join(levelRoot, 'level.dat');
-  fs.copyFileSync(levelDatPath, `${levelDatPath}_old`);
-  const { parsed: levelDat, type: levelDatType } = await nbt.parse(fs.readFileSync(levelDatPath));
-  console.log(1, levelDat.value['experiments']);
-  levelDat.value['experiments'] = nbt.comp({
-    experiments_ever_used: nbt.byte(1),
-    gametest: nbt.byte(1),
-    saved_with_toggled_experiments: nbt.byte(1),
-  });
-  console.log(2, levelDat.value['experiments']);
-  fs.writeFileSync(levelDatPath, nbt.writeUncompressed(levelDat, levelDatType));
-  console.log(3, (await nbt.parse(fs.readFileSync(levelDatPath))).parsed.value['experiments']);
-  console.log('Successfully patched `level.dat`.');
- */
-// A weird issue: `level.dat` is patched through this segment of code.
-// However, when the BDS instance launches, the newly patched `level.dat` just returns to what it had been like.
-// This issue only happens when I patch this file with such code.
-// When I manually enable experimental APIs in Minecraft client, it just works.
+  // Initialization end
 
-// Initialization end
-
-async function main(){
   fsExtra.ensureDirSync(path.join(levelRoot, 'behavior_packs'));
 
   fs.readdirSync(path.join(levelRoot, 'behavior_packs'))
