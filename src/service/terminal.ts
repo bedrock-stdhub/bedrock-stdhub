@@ -5,8 +5,8 @@ import { ScriptEvent } from '@/event/ScriptEvent';
 import readConfigAction from '@/api/config/read-config';
 import { $clearRegistry, processConsoleCommand } from '@/service/command';
 import os from 'node:os';
-import { $log, $logBDS } from '@/log';
 import { $log, $logBDS } from '@/service/log';
+import { handleXuidLogging } from '@/service/xuid';
 
 let bdsProcess: ChildProcessWithoutNullStreams| null = null;
 
@@ -39,6 +39,9 @@ export function $initialize(bdsCommand: string) {
       } else {
         const [ , timeString, level, content ] = matchResultOrNull;
         $logBDS(timeString, level, content);
+
+        // Check if the output satisfies any pattern
+        handleXuidLogging(content);
       }
     }
   });
