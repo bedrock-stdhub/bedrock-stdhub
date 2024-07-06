@@ -3,7 +3,7 @@ export default function deepMerge(obj1, obj2) {
 
   for (let key in obj2) {
     if (Object.prototype.hasOwnProperty.call(obj2, key)) {
-      if (obj2[key] instanceof Object && obj1[key] instanceof Object) {
+      if (obj2[key] instanceof Object && obj1[key] instanceof Object && !Array.isArray(obj2[key])) {
         result[key] = deepMerge(obj1[key], obj2[key]);
       } else {
         result[key] = obj2[key];
