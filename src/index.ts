@@ -14,7 +14,7 @@ import PropertiesReader from 'properties-reader';
 import commandLineArgs from 'command-line-args';
 import portFinder from 'portfinder';
 import { $initialize } from '@/service/terminal';
-import loadPlugins from '@/startup/load-plugin';
+import loadPlugins from '@/startup/load-plugins';
 import { logSelf } from '@/service/log';
 import init from '@/startup/init';
 
