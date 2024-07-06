@@ -65,6 +65,9 @@ export default async function loadPlugins() {
         },
         targetMinecraftVersion: string
       };
+
+      logSelf(`Loading plugin §b${pluginMeta.plugin.name}§r...`);
+
       const pluginVersionArray = pluginMeta.plugin.version.split('.').map(i => parseInt(i));
       const pluginUUID = randomUUID();
       const scriptModuleUUID = randomUUID();
@@ -72,8 +75,12 @@ export default async function loadPlugins() {
       const targetMinecraftVersion = pluginMeta.targetMinecraftVersion;
 
       if (targetMinecraftVersion !== currentBDSVersion) {
-        logSelf(`§eThe Minecraft version requirement of plugin ${pluginMeta.plugin.name} (§c${targetMinecraftVersion}§e) does not match current version §a${currentBDSVersion}§e.`);
-        logSelf('§eWe will still enable this plugin. But when it does not function as expected, do not report any issue.');
+        logSelf([
+          `§eThe Minecraft version requirement of plugin §b${pluginMeta.plugin.name}§e (§c${targetMinecraftVersion}§e)`,
+          `§edoes not match current version (§a${currentBDSVersion}§e).`,
+          '§eWe will still enable this plugin.',
+          '§eBut when it does not function as expected, do not report any issue.'
+        ].join('\n'));
       }
 
       const tempPluginName = `__stdhub_plugins_${pluginUUID}`;
@@ -130,7 +137,7 @@ export default async function loadPlugins() {
             path.join(pluginScriptRoot, entryScriptName),
             await plugin.file('script.js')!.async('nodebuffer'),
           );
-          logSelf(`§ePlugin §a${pluginFileName}§e changed. Please execute \`§areload§e\` AT THE TERMINAL to see changes.`);
+          logSelf(`§ePlugin §b${pluginFileName}§e changed. Please execute \`§areload§e\` AT THE TERMINAL to see changes.`);
         });
       }
 
@@ -147,5 +154,5 @@ export default async function loadPlugins() {
 
   // fs.writeFileSync(path.join(levelRoot, 'world_resource_packs.json'),JSON.stringify(worldResourcePacks));
 
-  logSelf(`§aSuccessfully loaded ${loadedPluginNumber} plugin(s).`);
+  logSelf(`§aSuccessfully loaded §b${loadedPluginNumber}§a plugin(s).`);
 }
