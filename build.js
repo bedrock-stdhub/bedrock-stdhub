@@ -6,6 +6,9 @@ import fs from 'node:fs';
 const outputPath = 'dist';
 const esbuildOutput = path.join(outputPath, 'bedrock-stdhub.js');
 
+console.log('Cleaning up output directory...');
+fs.readdirSync(outputPath).forEach(file => fs.rmSync(path.join(outputPath, file)));
+
 // esbuild .\src\index.ts --bundle --outfile=dist\bedrock-stdhub.js --platform=node --format=cjs
 async function bundleJs() {
   console.log('Bundling source code into a single JS file...');
