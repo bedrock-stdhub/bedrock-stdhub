@@ -28,8 +28,11 @@ export function $initialize(bdsCommand: string) {
     defaults: { commandPrefix: '.' }
   }).data!.commandPrefix as string;
 
+  let testForServerPackStack = true;
+
   bdsProcess.stdout.on('data', (data) => {
-    const lines = (<string>data.toString()).split(/\r*\n/); // the last element must be ''
+    const dataString = <string>data.toString();
+    const lines = dataString.split(/\r*\n/); // the last element must be ''
     for (let i = 0; i < lines.length - 1; i++) {
       const line = lines[i];
       const matchResultOrNull = line.match(bdsLogRegex);
@@ -38,9 +41,19 @@ export function $initialize(bdsCommand: string) {
         $log('bds', line);
       } else {
         const [ , timeString, level, content ] = matchResultOrNull;
+
+        // Pre logging logic that may change or intercept the logging content
+        if (testForServerPackStack) {
+          if (content.startsWith('[Packs] [SERVER] Pack Stack')) {
+            testForServerPackStack = false;
+            // stop logging this chunk
+            return;
+          }
+        }
+
         $logBDS(timeString, level, content);
 
-        // Check if the output satisfies any pattern
+        // Post logging logic that only tests for logging content
         handleXuidLogging(content);
       }
     }
