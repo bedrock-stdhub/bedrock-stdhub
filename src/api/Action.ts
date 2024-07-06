@@ -7,7 +7,7 @@ import { randomUUID } from 'node:crypto';
 export interface Action<R = any> {
   schema: JSONSchema,
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  handler: (params: any) => { status?: number, data?: R } | Promise<{ status?: number, data: R }>
+  handler: (params: any) => { status?: number, data?: R } | Promise<{ status?: number, data?: R }>
 }
 
 const validatorMap = new Map<string, Validate>();
