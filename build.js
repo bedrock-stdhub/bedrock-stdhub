@@ -39,6 +39,10 @@ async function copyBuiltJs() {
 
 const task = process.argv[2];
 switch (task) {
+  case 'build-js': {
+    bundleJs();
+    break;
+  }
   case 'build': {
     bundleJs().then(toSingleExecutable);
     break;
