@@ -1,5 +1,6 @@
-import { triggerCommand } from '@/api/command/submit-command';
 import { logSelf } from '@/service/log';
+import { triggerScriptEvent } from '@/service/terminal';
+import { CommandDispatchEvent } from '@/event/command/CommandDispatchEvent';
 
 const commands: Set<string> = new Set();
 const defaultCommandNames: Map<string, string> = new Map();
@@ -43,6 +44,19 @@ export function resolveCommand(commandString: string): { namespace: string, reso
         resolvedText: commandString,
       };
     }
+  }
+}
+
+export function triggerCommand(commandString: string, playerId?: string) {
+  const resolved = resolveCommand(commandString);
+  if (!resolved) {
+    return { status: 404 };
+  } else {
+    triggerScriptEvent(resolved.namespace, new CommandDispatchEvent(
+      resolved.resolvedText,
+      playerId,
+    ));
+    return {};
   }
 }
 

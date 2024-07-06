@@ -1,10 +1,13 @@
+import express from 'express';
+import registerAction, { Action } from '@/api/Action';
 import { FromSchema, JSONSchema } from 'json-schema-to-ts';
-import fs from 'fs';
-import { Action } from '@/api/Action';
 import path from 'node:path';
 import process from 'node:process';
+import fs from 'fs';
 
-const schema = {
+const router = express.Router();
+
+const readFileSchema = {
   type: 'object',
   properties: {
     path: { type: 'string' },
@@ -15,8 +18,8 @@ const schema = {
 } as const satisfies JSONSchema;
 
 const readFileAction = {
-  schema,
-  handler: (params: FromSchema<typeof schema>) => {
+  schema: readFileSchema,
+  handler: (params: FromSchema<typeof readFileSchema>) => {
     const absolutePath = path.resolve(params.path);
     if (!absolutePath.startsWith(`${process.cwd()}${path.sep}`)) {
       return { status: 400 };
@@ -35,4 +38,6 @@ const readFileAction = {
   }
 } satisfies Action;
 
-export default readFileAction;
+registerAction(router, '/read', readFileAction);
+
+export default router;

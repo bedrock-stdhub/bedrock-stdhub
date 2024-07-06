@@ -2,7 +2,7 @@ import { ChildProcessWithoutNullStreams } from 'child_process';
 import { spawn } from 'node:child_process';
 import process from 'node:process';
 import { ScriptEvent } from '@/event/ScriptEvent';
-import readConfigAction from '@/api/config/read-config';
+import { readConfigAction } from '@/api/config';
 import { $clearRegistry, processConsoleCommand } from '@/service/command';
 import os from 'node:os';
 import { $log, $logBDS } from '@/service/log';
