@@ -5,7 +5,7 @@ import { cmdLineOptions, levelRoot, pluginsRoot } from '@/index';
 import fsExtra from 'fs-extra';
 import { randomUUID } from 'node:crypto';
 import { getCurrentBDSVersion, getMinecraftServerApiVersionMapping } from '@/utils/bds-version';
-import { logSelf } from '@/log';
+import { logSelf } from '@/service/log';
 
 /*
  * Logic of loading legacy plugins (.mcaddon)

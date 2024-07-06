@@ -1,6 +1,6 @@
 import path from 'node:path';
 import fs from 'node:fs';
-import { logSelf } from '@/log';
+import { logSelf } from '@/service/log';
 import nbt, { Tags, TagType } from 'prismarine-nbt';
 import { levelRoot } from '@/index';
 

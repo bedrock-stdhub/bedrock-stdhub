@@ -2,7 +2,7 @@ import express from 'express';
 import { FromSchema, JSONSchema } from 'json-schema-to-ts';
 import registerAction, { Action } from '@/api/Action';
 
-import log from '@/log';
+import log from '@/service/log';
 
 const router = express.Router();
 

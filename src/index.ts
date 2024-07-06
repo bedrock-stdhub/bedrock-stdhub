@@ -12,9 +12,9 @@ import logRouter from '@/api/log';
 import PropertiesReader from 'properties-reader';
 import commandLineArgs from 'command-line-args';
 import portFinder from 'portfinder';
-import { $initialize } from '@/terminal';
+import { $initialize } from '@/service/terminal';
 import loadPlugins from '@/startup/load-plugin';
-import { logSelf } from '@/log';
+import { logSelf } from '@/service/log';
 import init from '@/startup/init';
 
 export const cmdLineOptions = commandLineArgs([

@@ -2,7 +2,7 @@ import fs from 'fs';
 import path from 'node:path';
 import fsExtra from 'fs-extra';
 import axios from 'axios';
-import { logSelf } from '@/log';
+import { logSelf } from '@/service/log';
 
 type Version = number[];
 

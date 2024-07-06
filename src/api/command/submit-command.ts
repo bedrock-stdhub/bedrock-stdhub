@@ -1,9 +1,9 @@
 import { FromSchema, JSONSchema } from 'json-schema-to-ts';
 import { Action } from '@/api/Action';
-import { resolveCommand } from '@/command';
-import { triggerScriptEvent } from '@/terminal';
+import { resolveCommand } from '@/service/command';
+import { triggerScriptEvent } from '@/service/terminal';
 import { CommandDispatchEvent } from '@/event/command/CommandDispatchEvent';
-import { logSelf } from '@/log';
+import { logSelf } from '@/service/log';
 
 const schema = {
   type: 'object',

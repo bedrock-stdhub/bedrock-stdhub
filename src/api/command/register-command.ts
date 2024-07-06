@@ -1,6 +1,6 @@
 import { FromSchema, JSONSchema } from 'json-schema-to-ts';
 import { Action } from '@/api/Action';
-import { registerCommand } from '@/command';
+import { registerCommand } from '@/service/command';
 
 const schema = {
   type: 'object',

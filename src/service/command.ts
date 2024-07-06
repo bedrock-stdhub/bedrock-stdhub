@@ -1,5 +1,5 @@
 import { triggerCommand } from '@/api/command/submit-command';
-import { logSelf } from '@/log';
+import { logSelf } from '@/service/log';
 
 const commands: Set<string> = new Set();
 const defaultCommandNames: Map<string, string> = new Map();
