@@ -1,5 +1,5 @@
 import express from 'express';
-import registerAction, { Action } from '@/api/Action';
+import registerAction, { Action } from '@/service/action';
 import { FromSchema, JSONSchema } from 'json-schema-to-ts';
 import { registerCommand, triggerCommand } from '@/service/command';
 import { logSelf } from '@/service/log';

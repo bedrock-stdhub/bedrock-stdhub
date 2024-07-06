@@ -1,6 +1,6 @@
 import express from 'express';
 import { FromSchema, JSONSchema } from 'json-schema-to-ts';
-import registerAction, { Action } from '@/api/Action';
+import registerAction, { Action } from '@/service/action';
 
 import log from '@/service/log';
 
