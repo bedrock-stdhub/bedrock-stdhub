@@ -7,33 +7,6 @@ import { randomUUID } from 'node:crypto';
 import { getCurrentBDSVersion, getMinecraftServerApiVersionMapping } from '@/utils/bds-version';
 import { logSelf } from '@/service/log';
 
-/*
- * Logic of loading legacy plugins (.mcaddon)
-  async function extractMCAddon(pluginName: string, addon: JSZip) {
-    const behaviorPack = await JSZip.loadAsync(addon.file(`${pluginName}_bp.mcpack`)!.async('nodebuffer'));
-    const resourcePack = await JSZip.loadAsync(addon.file(`${pluginName}_rp.mcpack`)!.async('nodebuffer'));
-
-    const bpRoot = path.join(levelRoot, 'behavior_packs', pluginName);
-    const rpRoot = path.join(levelRoot, 'resource_packs', pluginName);
-    await extractAllFilesFromZip(behaviorPack, bpRoot);
-    await extractAllFilesFromZip(resourcePack, rpRoot);
-  }
-
-  async function extractAllFilesFromZip(zip: JSZip, toPath: string) {
-    for (const filename of Object.keys(zip.files)) {
-      const file = zip.files[filename];
-      const outputPath = path.join(toPath, filename);
-      if (file.dir) {
-        fsExtra.ensureDirSync(outputPath);
-      } else {
-        const content = await file.async('nodebuffer');
-        fsExtra.ensureDirSync(path.dirname(outputPath));
-        fs.writeFileSync(outputPath, content);
-      }
-    }
-  }
- */
-
 const entryScriptName = 'main.js';
 
 export default async function loadPlugins() {
@@ -53,33 +26,6 @@ export default async function loadPlugins() {
   const worldBehaviorPacks = JSON.parse(
     fs.readFileSync(originalWorldBehaviorPacksFilePath).toString()
   ) as { pack_id: string, version: number[] }[];
-  // const worldResourcePacks: { pack_id: string, version: number[] }[] = [];
-
-  /*
-   * Logic of loading legacy plugins (.mcaddon)
-    const legacyPlugins = allPlugins.filter(fileName => fileName.endsWith('.mcaddon'));
-    for (const pluginFileName of legacyPlugins) {
-      const pluginName = pluginFileName.substring(0, pluginFileName.length - 8);
-      const addon = await JSZip.loadAsync(fs.readFileSync(path.join(pluginsRoot, pluginFileName)));
-      await extractMCAddon(pluginName, addon);
-      const bpManifest = JSON.parse(fs.readFileSync(
-        path.join(levelRoot, 'behavior_packs', pluginName, 'manifest.json')).toString());
-      const rpManifest = JSON.parse(fs.readFileSync(
-        path.join(levelRoot, 'behavior_packs', pluginName, 'manifest.json')).toString());
-      worldBehaviorPacks.push({ pack_id: bpManifest.header.uuid, version: bpManifest.header.version });
-      worldResourcePacks.push({ pack_id: rpManifest.header.uuid, version: rpManifest.header.version });
-
-      if (cmdLineOptions['debug-mode']) {
-        fs.watchFile(path.join(pluginsRoot, pluginFileName), async () => {
-          const addon = await JSZip.loadAsync(fs.readFileSync(path.join(pluginsRoot, pluginFileName)));
-          await extractMCAddon(pluginName, addon);
-          console.log(`Plugin ${pluginFileName} changed. Please execute \`/reload\` to see changes.`);
-        });
-      }
-
-      console.log(`Loaded legacy plugin \`${pluginFileName}\`.`);
-    }
-   */
 
   const plugins = allPlugins.filter(fileName => fileName.endsWith('.stdplugin'));
 
