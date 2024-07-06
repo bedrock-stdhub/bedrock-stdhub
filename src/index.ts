@@ -9,6 +9,7 @@ import configRouter from '@/api/config';
 import dataRouter from '@/api/data';
 import commandRouter from '@/api/command';
 import logRouter from '@/api/log';
+import xuidRouter from '@/api/xuid';
 import PropertiesReader from 'properties-reader';
 import commandLineArgs from 'command-line-args';
 import portFinder from 'portfinder';
@@ -84,6 +85,7 @@ async function main(){
   app.use('/data', dataRouter);
   app.use('/command', commandRouter);
   app.use('/log', logRouter);
+  app.use('/xuid', xuidRouter);
 
   portFinder.getPort((err, port) => {
     if (err) {
