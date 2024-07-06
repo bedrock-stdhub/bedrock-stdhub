@@ -1,6 +1,6 @@
 import { logSelf } from '@/service/log';
 import { triggerScriptEvent } from '@/service/terminal';
-import { CommandDispatchEvent } from '@/event/command/CommandDispatchEvent';
+import { CommandDispatchEvent } from '@/event/CommandDispatchEvent';
 
 const commands: Set<string> = new Set();
 const defaultCommandNames: Map<string, string> = new Map();
