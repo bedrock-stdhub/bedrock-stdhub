@@ -1,7 +1,7 @@
 import { logSelf } from '@/service/log';
 import { triggerScriptEvent } from '@/service/terminal';
 import { CommandDispatchEvent } from '@/event/CommandDispatchEvent';
-import { Permission, testPermission } from '@/service/permission';
+import { addPermissionKey, Permission, testPermission } from '@/service/permission';
 import { cmdLineOptions } from '@/index';
 
 const commands = new Map<string, Permission>();
@@ -9,6 +9,7 @@ const defaultCommandNames = new Map<string, string>();
 
 export function registerCommand(namespace: string, commandName: string, permission?: Permission): boolean {
   const cmdNameWithNs = `${namespace}:${commandName}`;
+  const permissionWithNs = permission ? `${namespace}:${permission}` : '';
   if (commands.has(cmdNameWithNs)) {
     return false;
   }
@@ -19,9 +20,10 @@ export function registerCommand(namespace: string, commandName: string, permissi
     logSelf(`Command naming conflict: '${presentCommandOrNull}' & '${cmdNameWithNs}'.`);
     logSelf(`Consider removing one of the plugins, or call the latter with prefix '${namespace}:'.`);
   }
-  commands.set(cmdNameWithNs, permission ?? '');
+  commands.set(cmdNameWithNs, permissionWithNs);
+  addPermissionKey(permissionWithNs);
   logSelf(`Command registered: §a${cmdNameWithNs}${
-    permission && `§r with permission §b${permission}`
+    permission && `§r with permission §b${permissionWithNs}`
   }`);
   return true;
 }

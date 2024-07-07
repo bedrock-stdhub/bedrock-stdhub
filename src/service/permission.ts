@@ -68,6 +68,14 @@ function writePlayerGroupingInfo() {
   fs.writeFileSync(playersJsonPath, JSON.stringify(Object.fromEntries(playerGroupingInfo)));
 }
 
+export function permissionExists(permission: Permission) {
+  return permissionKeys.has(permission);
+}
+
+export function addPermissionKey(permission: Permission) {
+  permissionKeys.add(permission);
+}
+
 export function getGroups() {
   return Array.from(groups.keys());
 }

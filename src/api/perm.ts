@@ -15,7 +15,7 @@ import {
   getGroups,
   getAllPermissionsOfGroup,
   getExplicitPermissionsOfGroup,
-  playerExistsInGroup,
+  playerExistsInGroup, permissionExists,
 } from '@/service/permission';
 import registerAction, { Action } from '@/service/action';
 
@@ -79,7 +79,7 @@ const grantPermissionSchema = {
 const grantPermissionAction = {
   schema: grantPermissionSchema,
   handler: (params: FromSchema<typeof grantPermissionSchema>) => {
-    if (!groupExists(params.groupName)) {
+    if (!groupExists(params.groupName) || !permissionExists(params.permission)) {
       return { status: 404 };
     }
     if (permissionExistsInGroup(params.groupName, params.permission)) {
