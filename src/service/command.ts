@@ -1,11 +1,12 @@
 import { logSelf } from '@/service/log';
 import { triggerScriptEvent } from '@/service/terminal';
 import { CommandDispatchEvent } from '@/event/CommandDispatchEvent';
+import { Permission, testPermission } from '@/service/permission';
 
-const commands: Set<string> = new Set();
-const defaultCommandNames: Map<string, string> = new Map();
+const commands = new Map<string, Permission>();
+const defaultCommandNames = new Map<string, string>();
 
-export function registerCommand(namespace: string, commandName: string): boolean {
+export function registerCommand(namespace: string, commandName: string, permission?: Permission): boolean {
   const cmdNameWithNs = `${namespace}:${commandName}`;
   if (commands.has(cmdNameWithNs)) {
     return false;
@@ -17,11 +18,13 @@ export function registerCommand(namespace: string, commandName: string): boolean
     logSelf(`Command naming conflict: '${presentCommandOrNull}' & '${cmdNameWithNs}'.`);
     logSelf(`Consider removing one of the plugins, or call the latter with prefix '${namespace}:'.`);
   }
-  commands.add(cmdNameWithNs);
+  commands.set(cmdNameWithNs, permission ?? '');
+  logSelf(`Command registered: §a${cmdNameWithNs}`);
   return true;
 }
 
-export function resolveCommand(commandString: string): { namespace: string, resolvedText: string } | null {
+export function resolveCommand(commandString: string):
+  { namespace: string, resolvedText: string, permission?: Permission } | null {
   const [ commandName ] = commandString.split(' ', 1);
   if (commandName.includes(':')) {
     if (!commands.has(commandName)) {
@@ -31,6 +34,7 @@ export function resolveCommand(commandString: string): { namespace: string, reso
       return {
         namespace,
         resolvedText: commandString.slice(namespace.length + 1),
+        permission: commands.get(commandName),
       };
     }
   } else {
@@ -42,16 +46,27 @@ export function resolveCommand(commandString: string): { namespace: string, reso
       return {
         namespace,
         resolvedText: commandString,
+        permission: commands.get(defaultCommandOrNull),
       };
     }
   }
 }
 
-export function triggerCommand(commandString: string, playerId?: string) {
+export function triggerCommand(
+  commandString: string,
+  isOperator?: boolean,
+  playerId?: string,
+  xuid?: string,
+) {
   const resolved = resolveCommand(commandString);
   if (!resolved) {
     return { status: 404 };
   } else {
+    if (!isOperator && xuid && resolved.permission) {
+      if (!testPermission(xuid, resolved.permission)) {
+        return { status: 403 };
+      }
+    }
     triggerScriptEvent(resolved.namespace, new CommandDispatchEvent(
       resolved.resolvedText,
       playerId,
@@ -62,7 +77,7 @@ export function triggerCommand(commandString: string, playerId?: string) {
 
 export function processConsoleCommand(commandString: string) {
   const commandName = commandString.split(' ', 1)[0];
-  const triggerResult = triggerCommand(commandString);
+  const triggerResult = triggerCommand(commandString, true);
   if (triggerResult.status === 404) {
     logSelf(`§cUnknown command: ${commandName}. Please check that the command exists and you have permission to use it.`);
   }
