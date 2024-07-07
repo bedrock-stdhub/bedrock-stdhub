@@ -54,6 +54,9 @@ const deleteGroupSchema = {
 const deleteGroupAction = {
   schema: deleteGroupSchema,
   handler: (params: FromSchema<typeof deleteGroupSchema>) => {
+    if (params.groupName === 'default') {
+      return { status: 400 };
+    }
     if (!groupExists(params.groupName)) {
       return { status: 404 };
     }
