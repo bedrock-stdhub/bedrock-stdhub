@@ -19,7 +19,7 @@ const permissionDataPath = 'permissions';
 const playersJsonPath = path.join(permissionDataPath, 'players.json');
 fsExtra.ensureDirSync(permissionDataPath);
 
-if (!fs.existsSync('default.group.json')) {
+if (!fs.existsSync(path.join(permissionDataPath, 'default.group.json'))) {
   writeGroup('default', { permissions: [] });
 }
 
