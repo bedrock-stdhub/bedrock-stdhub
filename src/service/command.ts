@@ -20,7 +20,9 @@ export function registerCommand(namespace: string, commandName: string, permissi
     logSelf(`Consider removing one of the plugins, or call the latter with prefix '${namespace}:'.`);
   }
   commands.set(cmdNameWithNs, permission ?? '');
-  logSelf(`Command registered: §a${cmdNameWithNs}`);
+  logSelf(`Command registered: §a${cmdNameWithNs}${
+    permission && `§r with permission §b${permission}`
+  }`);
   return true;
 }
 
