@@ -108,15 +108,29 @@ export function permissionExistsInGroup(groupName: string, permission: Permissio
 export function grantPermissionToGroup(groupName: string, permission: string) {
   const groupData = groups.get(groupName)!;
   groupData.permissions.push(permission);
-  groupPermissionCache.set(groupName, findPermissionsOfGroup(groupName));
+  recursivelyUpdateGroupPermissionCache(groupName);
   writeGroup(groupName, groupData);
 }
 
 export function revokePermissionFromGroup(groupName: string, permission: Permission) {
   const groupData = groups.get(groupName)!;
   groupData.permissions = groupData.permissions.filter(p => p !== permission);
-  groupPermissionCache.set(groupName, findPermissionsOfGroup(groupName));
+  recursivelyUpdateGroupPermissionCache(groupName);
   writeGroup(groupName, groupData);
+}
+
+function recursivelyUpdateGroupPermissionCache(groupName: string) {
+  groupPermissionCache.set(groupName, findPermissionsOfGroup(groupName));
+  playerGroupingInfo.forEach((groups, xuid) => {
+    if (groups.includes(groupName)) {
+      playerGroupingInfo.set(xuid, groups.filter(group => group !== groupName).concat(groupName));
+    }
+  });
+  groups.forEach((groupData, name) => {
+    if (groupData.extends === groupName) {
+      recursivelyUpdateGroupPermissionCache(name);
+    }
+  });
 }
 
 export function testPermission(xuid: string, permission: Permission) {
