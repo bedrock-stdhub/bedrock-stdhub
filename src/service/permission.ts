@@ -54,8 +54,8 @@ if (!fs.existsSync(playersJsonPath)) {
 
 {
   const parsedPlayersJson = <Record<string, string[]>>(JSON.parse(fs.readFileSync(playersJsonPath).toString()));
-  for (const playerName in parsedPlayersJson) {
-    playerGroupingInfo.set(playerName, parsedPlayersJson[playerName]);
+  for (const xuid in parsedPlayersJson) {
+    playerGroupingInfo.set(xuid, parsedPlayersJson[xuid]);
   }
 }
 
@@ -77,7 +77,7 @@ export function groupExists(groupName: string) {
 
 export function createGroup(groupName: string, extendsFrom?: string) {
   const groupData: Group = {
-    extends: extendsFrom,
+    extends: extendsFrom === 'default' ? undefined : extendsFrom,
     permissions: [],
   };
   groups.set(groupName, groupData);
@@ -88,9 +88,9 @@ export function createGroup(groupName: string, extendsFrom?: string) {
 export function deleteGroup(groupName: string) {
   groups.delete(groupName);
   groupPermissionCache.delete(groupName);
-  playerGroupingInfo.forEach((groups, playerName) => {
+  playerGroupingInfo.forEach((groups, xuid) => {
     if (groups.includes(groupName)) {
-      playerGroupingInfo.set(playerName, groups.filter(group => group !== groupName));
+      playerGroupingInfo.set(xuid, groups.filter(group => group !== groupName));
     }
   });
   fs.unlinkSync(path.join(permissionDataPath, `${groupName}.group.json`));
@@ -123,36 +123,36 @@ export function revokePermissionFromGroup(groupName: string, permission: Permiss
   writeGroup(groupName, groupData);
 }
 
-export function testPermission(playerName: string, permission: Permission) {
-  const groupsOfPlayer = playerGroupingInfo.get(playerName) ?? [];
+export function testPermission(xuid: string, permission: Permission) {
+  const groupsOfPlayer = playerGroupingInfo.get(xuid) ?? [];
   return groupsOfPlayer.some(group => permissionExistsInGroup(group, permission))
     || defaultPermissions.has(permission);
 }
 
-export function getGroupsOfPlayer(playerName: string) {
-  return playerGroupingInfo.get(playerName) ?? [];
+export function getGroupsOfPlayer(xuid: string) {
+  return playerGroupingInfo.get(xuid) ?? [];
 }
 
 export function getPlayersInGroup(groupName: string) {
   return Array.from(playerGroupingInfo.entries())
   .filter(([ , groups ]) => groups.includes(groupName))
-  .map(([ playerName ]) => playerName);
+  .map(([ xuid ]) => xuid);
 }
 
-export function playerExistsInGroup(playerName: string, groupName: string) {
-  return playerGroupingInfo.get(playerName)?.includes(groupName) ?? false;
+export function playerExistsInGroup(xuid: string, groupName: string) {
+  return playerGroupingInfo.get(xuid)?.includes(groupName) ?? false;
 }
 
-export function addPlayerToGroup(playerName: string, groupName: string) {
-  const groupsOfPlayer = playerGroupingInfo.get(playerName) ?? [];
+export function addPlayerToGroup(xuid: string, groupName: string) {
+  const groupsOfPlayer = playerGroupingInfo.get(xuid) ?? [];
   if (!groupsOfPlayer.includes(groupName)) {
-    playerGroupingInfo.set(playerName, groupsOfPlayer.concat(groupName));
+    playerGroupingInfo.set(xuid, groupsOfPlayer.concat(groupName));
     writePlayerGroupingInfo();
   }
 }
 
-export function removePlayerFromGroup(playerName: string, groupName: string) {
-  const groupsOfPlayer = playerGroupingInfo.get(playerName) ?? [];
-  playerGroupingInfo.set(playerName, groupsOfPlayer.filter(group => group !== groupName));
+export function removePlayerFromGroup(xuid: string, groupName: string) {
+  const groupsOfPlayer = playerGroupingInfo.get(xuid) ?? [];
+  playerGroupingInfo.set(xuid, groupsOfPlayer.filter(group => group !== groupName));
   writePlayerGroupingInfo();
 }
