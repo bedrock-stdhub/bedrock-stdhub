@@ -13,7 +13,6 @@ const registerCommandSchema = {
     commandName: { type: 'string' },
   },
   required: [ 'namespace', 'commandName' ],
-  additionalProperties: false,
 } as const satisfies JSONSchema;
 
 const registerCommandAction = {
@@ -38,13 +37,12 @@ const submitCommandSchema = {
     commandString: { type: 'string' },
   },
   required: [ 'playerId', 'playerName', 'commandString' ],
-  additionalProperties: false,
 } as const satisfies JSONSchema;
 
 const submitCommandAction = {
   schema: submitCommandSchema,
   handler: (params: FromSchema<typeof submitCommandSchema>) => {
-    logSelf(`Player ${params.playerName} tries to call plugin command ${params.commandString}`);
+    logSelf(`Player ${params.playerName} attempts to call plugin command ${params.commandString}`);
 
     return triggerCommand(params.commandString, params.playerId);
   }
