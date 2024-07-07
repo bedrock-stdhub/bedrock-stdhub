@@ -1,0 +1,3 @@
+[submodule "bundled-plugins/command-core"]
+	path = bundled-plugins/command-core
+	url = https://github.com/bedrock-stdhub-plugins/command-core.git
