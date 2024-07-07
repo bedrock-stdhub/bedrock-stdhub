@@ -7,7 +7,7 @@ type XUIDMap = {
   xuid2name: { [p: string]: string | undefined }
 };
 
-const userCacheFileName = 'userCache.json';
+const userCacheFileName = 'bsh-user-cache.json';
 
 const xuidMap = fs.existsSync(userCacheFileName) ?
   <XUIDMap> JSON.parse(fs.readFileSync(userCacheFileName).toString()) :
