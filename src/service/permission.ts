@@ -1,6 +1,8 @@
 import fs from 'fs';
 import fsExtra from 'fs-extra';
 import path from 'path';
+import { cmdLineOptions } from '@/index';
+import { logSelf } from '@/service/log';
 
 export type Permission = string;
 
@@ -56,6 +58,9 @@ if (!fs.existsSync(playersJsonPath)) {
 }
 
 function writeGroup(groupName: string, groupData: Group) {
+  if (cmdLineOptions['debug-mode']) {
+    return;
+  }
   fs.writeFileSync(path.join(permissionDataPath, `${groupName}.group.json`), JSON.stringify(groupData));
 }
 
@@ -164,4 +169,16 @@ export function removePlayerFromGroup(xuid: string, groupName: string) {
   const groupsOfPlayer = (playerGroupingInfo.get(xuid) ?? []).concat('default');
   playerGroupingInfo.set(xuid, groupsOfPlayer.filter(group => group !== groupName));
   writePlayerGroupingInfo();
+}
+
+export function $clearPermissionSettings() {
+  if (!cmdLineOptions['debug-mode']) {
+    throw 'Illegal operation';
+  }
+  groups.clear();
+  groupPermissionCache.clear();
+  playerGroupingInfo.clear();
+  groups.set('default', { permissions: [] });
+  groupPermissionCache.set('default', findPermissionsOfGroup('default'));
+  logSelf('Permission settings cleared.');
 }

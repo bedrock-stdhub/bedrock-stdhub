@@ -5,8 +5,10 @@ import { ScriptEvent } from '@/event/ScriptEvent';
 import { readConfigAction } from '@/api/config';
 import { $clearRegistry, processConsoleCommand } from '@/service/command';
 import os from 'node:os';
-import { $log, $logBDS } from '@/service/log';
+import { $log, $logBDS, logSelf } from '@/service/log';
 import { handleXuidLogging } from '@/service/xuid';
+import { $clearPermissionSettings } from '@/service/permission';
+import { cmdLineOptions } from '@/index';
 
 let bdsProcess: ChildProcessWithoutNullStreams| null = null;
 
@@ -76,7 +78,12 @@ export function $initialize(bdsCommand: string) {
     }
 
     if (data.toString() === `reload${os.EOL}`) {
+      if (!cmdLineOptions['debug-mode']) {
+        logSelf('§cReload is a dangerous operation and can only be performed in debug mode.');
+        return;
+      }
       $clearRegistry();
+      $clearPermissionSettings();
     }
     $accessInstance().stdin.write(data);
   });

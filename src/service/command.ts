@@ -2,6 +2,7 @@ import { logSelf } from '@/service/log';
 import { triggerScriptEvent } from '@/service/terminal';
 import { CommandDispatchEvent } from '@/event/CommandDispatchEvent';
 import { Permission, testPermission } from '@/service/permission';
+import { cmdLineOptions } from '@/index';
 
 const commands = new Map<string, Permission>();
 const defaultCommandNames = new Map<string, string>();
@@ -84,6 +85,9 @@ export function processConsoleCommand(commandString: string) {
 }
 
 export function $clearRegistry() {
+  if (!cmdLineOptions['debug-mode']) {
+    throw 'Illegal operation';
+  }
   commands.clear();
   defaultCommandNames.clear();
   logSelf('Command registry cleared.');
