@@ -8,7 +8,7 @@ The word 'stdhub' is a combination of 'stdlib' and 'hub'. This application acts 
 
 # Usage
 
-Please refer to the [documentation](https://bedrock-stdhub.gdt.pub/get-started.html) on the official website.
+Please refer to the [documentation](https://bedrock-stdhub.gdt.pub/user-manual/get-started.html) on the official website.
 
 ## Debug Mode
 

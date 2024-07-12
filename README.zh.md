@@ -8,7 +8,7 @@
 
 # 使用方法
 
-请参考官方网站的[文档](https://bedrock-stdhub.gdt.pub/zh/get-started.html)。
+请参考官方网站的[文档](https://bedrock-stdhub.gdt.pub/zh/user-manual/get-started.html)。
 
 ## 调试模式
 
