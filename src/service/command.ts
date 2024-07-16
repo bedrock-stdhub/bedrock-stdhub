@@ -23,7 +23,7 @@ export function registerCommand(namespace: string, commandName: string, permissi
   commands.set(cmdNameWithNs, permissionWithNs);
   addPermissionKey(permissionWithNs);
   logSelf(`Command registered: §a${cmdNameWithNs}${
-    permission && `§r with permission §b${permissionWithNs}`
+    permission ? `§r with permission §b${permissionWithNs}`: ''
   }`);
   return true;
 }
