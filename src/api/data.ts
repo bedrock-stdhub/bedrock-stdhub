@@ -2,7 +2,7 @@ import express from 'express';
 import registerAction, { Action } from '@/service/action';
 import { FromSchema, JSONSchema } from 'json-schema-to-ts';
 import path from 'node:path';
-import { pluginsRoot } from '@/index';
+import { levelRoot, pluginsRoot } from '@/index';
 import fsExtra from 'fs-extra';
 import fs from 'fs';
 
@@ -13,22 +13,21 @@ const readDataSchema = {
   properties: {
     namespace: { type: 'string' },
     subDataPath: { type: 'string' },
+    isWorldSpecific: { type: 'boolean' },
   },
   required: [ 'namespace', 'subDataPath' ],
-  additionalProperties: false,
 } as const satisfies JSONSchema;
 
 const readDataAction = {
   schema: readDataSchema,
   handler: (params: FromSchema<typeof readDataSchema>) => {
-    const dataRoot = path.join(pluginsRoot, params.namespace, 'data');
-    fsExtra.ensureDirSync(dataRoot);
-
+    const dataRoot = params.isWorldSpecific ?
+      path.join(levelRoot, 'plugin_data', params.namespace) :
+      path.join(pluginsRoot, params.namespace, 'data');
     const dataFilePath = path.resolve(dataRoot, params.subDataPath);
-    if (!dataFilePath.startsWith(`${pluginsRoot}${path.sep}`)) {
+    if (!dataFilePath.startsWith(`${dataRoot}${path.sep}`)) {
       return { status: 400 };
     }
-
     if (!fs.existsSync(dataFilePath)) {
       return { status: 404 };
     } else {
@@ -44,22 +43,23 @@ const writeDataSchema = {
   properties: {
     namespace: { type: 'string' },
     subDataPath: { type: 'string' },
-    data: { type: 'object' }
+    data: { type: 'object' },
+    isWorldSpecific: { type: 'boolean' },
   },
   required: [ 'namespace', 'subDataPath', 'data' ],
-  additionalProperties: false,
 } as const satisfies JSONSchema;
 
 const writeDataAction = {
   schema: writeDataSchema,
   handler: (params: FromSchema<typeof writeDataSchema>) => {
-    const dataFilePath = path.resolve(pluginsRoot, params.namespace, 'data', params.subDataPath);
-    const dataFileDirname = path.dirname(dataFilePath);
-    if (!dataFilePath.startsWith(`${pluginsRoot}${path.sep}`)) {
+    const dataRoot = params.isWorldSpecific ?
+      path.join(levelRoot, 'plugin_data', params.namespace) :
+      path.join(pluginsRoot, params.namespace, 'data');
+    const dataFilePath = path.resolve(dataRoot, params.subDataPath);
+    if (!dataFilePath.startsWith(`${dataRoot}${path.sep}`)) {
       return { status: 400 };
     }
-
-    fsExtra.ensureDirSync(dataFileDirname);
+    fsExtra.ensureFileSync(dataFilePath);
     fs.writeFileSync(dataFilePath, JSON.stringify(params.data));
     return {};
   }
@@ -72,23 +72,25 @@ const deleteDataSchema = {
   properties: {
     namespace: { type: 'string' },
     subDataPath: { type: 'string' },
+    isWorldSpecific: { type: 'boolean' },
   },
   required: [ 'namespace', 'subDataPath' ],
-  additionalProperties: false,
 } as const satisfies JSONSchema;
 
 const deleteDataAction = {
   schema: deleteDataSchema,
   handler: (params: FromSchema<typeof deleteDataSchema>) => {
-    const dataFilePath = path.resolve(pluginsRoot, params.namespace, 'data', params.subDataPath);
-    if (!dataFilePath.startsWith(`${pluginsRoot}${path.sep}`)) {
+    const dataRoot = params.isWorldSpecific ?
+      path.join(levelRoot, 'plugin_data', params.namespace) :
+      path.join(pluginsRoot, params.namespace, 'data');
+    const dataFilePath = path.resolve(dataRoot, params.subDataPath);
+    if (!dataFilePath.startsWith(`${dataRoot}${path.sep}`)) {
       return { status: 400 };
     }
-
     if (!fs.existsSync(dataFilePath)) {
       return { status: 404 };
     } else {
-      fs.rmSync(dataFilePath);
+      fs.unlinkSync(dataFilePath);
       return {};
     }
   }

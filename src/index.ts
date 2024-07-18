@@ -26,7 +26,7 @@ export const cmdLineOptions = commandLineArgs([
 export const pluginsRoot = path.resolve('plugins');
 
 const serverProperties = PropertiesReader('server.properties');
-export const levelRoot = path.join('worlds', serverProperties.get('level-name')!.toString());
+export const levelRoot = path.resolve('worlds', serverProperties.get('level-name')!.toString());
 
 async function main(){
   // check for platform
